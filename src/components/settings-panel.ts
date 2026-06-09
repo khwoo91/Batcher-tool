@@ -320,13 +320,12 @@ export class SettingsPanel extends LitElement {
                   type="text"
                   @input="${this.handleSubfolderChange}"
                   ?disabled="${this.isConverting}"
-                  placeholder="(지정하지 않으면 원본 위치에 직접 저장)"
+                  placeholder="경로 미지정시 원본 위치에 직접 생성"
                   class="w-full pl-6 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-md text-slate-200 text-sm focus:outline-none focus:border-indigo-500 transition-colors font-sans"
                 />
               </div>
               <p class="text-[11px] text-slate-500 mt-1">
-                지정한 하위 폴더 안에 결과물이 모이게 됩니다. 비워둘 경우 원본
-                SVG 파일이 있는 동일한 경로에 직접 저장됩니다.
+                지정한 하위 폴더 안에 결과물이 생성됩니다.
               </p>
             </div>
 

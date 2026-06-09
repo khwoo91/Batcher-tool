@@ -2,7 +2,7 @@ export interface SvgFile {
   name: string;
   file: File;
   relativePath: string;
-  status: 'pending' | 'processing' | 'success' | 'error';
+  status: "pending" | "processing" | "success" | "error";
   errorMsg?: string;
 }
 
@@ -15,5 +15,5 @@ export interface ScaleOption {
 export interface ConversionLog {
   timestamp: string;
   text: string;
-  type: 'info' | 'success' | 'error' | 'warning';
+  type: "info" | "success" | "error" | "warning";
 }
