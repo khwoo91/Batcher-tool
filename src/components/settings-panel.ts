@@ -104,7 +104,7 @@ export class SettingsPanel extends LitElement {
                 <div class="p-3.5 bg-indigo-950/20 border border-indigo-500/20 rounded-xl text-xs flex items-center justify-between">
                   <div class="flex items-center gap-2 text-indigo-300">
                     <i class="fa-regular fa-folder-open"></i>
-                    <span class="font-semibold truncate max-w-[200px]">${this.dirHandle.name}</span>
+                    <span class="font-semibold truncate max-w-50">${this.dirHandle.name}</span>
                   </div>
                   <span class="text-slate-400 font-mono">${this.svgFilesCount}개 파일 로드됨</span>
                 </div>
@@ -138,7 +138,7 @@ export class SettingsPanel extends LitElement {
                 <div class="p-3.5 bg-amber-950/20 border border-amber-500/20 rounded-xl text-xs flex items-center justify-between">
                   <div class="flex items-center gap-2 text-amber-300">
                     <i class="fa-solid fa-folder-tree"></i>
-                    <span class="font-semibold truncate max-w-[200px]">수동 로드된 임포트 셋</span>
+                    <span class="font-semibold truncate max-w-50">수동 로드된 임포트 셋</span>
                   </div>
                   <span class="text-slate-400 font-mono">${this.svgFilesCount}개 파일 감지됨</span>
                 </div>
@@ -214,7 +214,7 @@ export class SettingsPanel extends LitElement {
                       </div>
                     </button>
                     
-                    <div class="w-28 flex-shrink-0 flex flex-col gap-1">
+                    <div class="w-28 shrink-0 flex flex-col gap-1">
                       <span class="text-[9px] text-slate-500 uppercase tracking-wider pl-1 font-sans">접미사</span>
                       <input 
                         type="text" 
@@ -285,7 +285,7 @@ export class SettingsPanel extends LitElement {
         <button 
           @click="${this.handleStartConversion}" 
           ?disabled="${this.isConverting || this.svgFilesCount === 0}"
-          class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-3 cursor-pointer shadow-md font-sans font-bold"
+          class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] text-white rounded-2xl transition-all flex items-center justify-center gap-3 cursor-pointer shadow-md font-sans font-bold"
         >
           ${this.isConverting ? html`
             <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">

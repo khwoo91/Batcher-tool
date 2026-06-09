@@ -330,7 +330,7 @@ export class SvgToPngConverter extends LitElement {
         <!-- Browser Compatibility Alert Banner -->
         ${!this.apiSupported ? html`
           <div class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-300 text-sm flex items-start gap-3">
-            <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 flex-shrink-0 font-sans"></i>
+            <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 shrink-0 font-sans"></i>
             <div class="font-sans">
               <span class="font-bold">브라우저 호환성 안내:</span> 현재 사용 중인 브라우저는 로컬 디렉토리에 직접 새 이미지 파일을 저장하거나 원본 파일을 제어하는 최신 API를 완벽히 지원하지 않습니다.
               대신, 변환이 끝난 파일들을 묶어 <strong>${this.outputSubFolderName}.zip</strong> 압축파일 형태로 일괄 안전하게 다운로드해 드립니다.
