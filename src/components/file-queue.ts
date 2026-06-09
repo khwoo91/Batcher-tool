@@ -12,11 +12,11 @@ export class FileQueue extends LitElement {
 
   protected override render() {
     return html`
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-[400px]">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-100">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
           <div class="flex items-center gap-2">
             <i class="fa-solid fa-list-ul text-indigo-400"></i>
-            <span class="text-md font-semibold text-white font-sans">파일 큐 대기열 (${this.svgFiles.length}개)</span>
+            <span class="text-md font-semibold text-white font-sans">파일 대기열 (${this.svgFiles.length}개)</span>
           </div>
           <span class="text-xs text-slate-500">상태 모니터</span>
         </div>
@@ -30,7 +30,7 @@ export class FileQueue extends LitElement {
           ` : this.svgFiles.map(file => html`
             <div class="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-slate-700/60 transition-colors text-xs">
               <div class="flex items-center gap-3 min-w-0 font-sans">
-                <i class="fa-regular fa-file-image text-indigo-400 text-lg flex-shrink-0"></i>
+                <i class="fa-regular fa-file-image text-indigo-400 text-lg shrink-0"></i>
                 <div class="min-w-0">
                   <p class="font-medium text-slate-200 truncate" title="${file.relativePath}">${file.name}</p>
                   <p class="text-[10px] text-slate-500 font-mono">${(file.file.size / 1024).toFixed(1)} KB</p>

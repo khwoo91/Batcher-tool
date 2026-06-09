@@ -16,11 +16,11 @@ export class LogConsole extends LitElement {
 
   protected override render() {
     return html`
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-[280px]">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-70">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
           <div class="flex items-center gap-2">
             <i class="fa-solid fa-terminal text-indigo-400"></i>
-            <span class="text-md font-semibold text-white font-sans">트랜잭션 실행 로그</span>
+            <span class="text-md font-semibold text-white font-sans">작업 실행 로그</span>
           </div>
           <button 
             @click="${this.handleClearLogs}" 
@@ -37,7 +37,7 @@ export class LogConsole extends LitElement {
             </div>
           ` : this.conversionLogs.map(log => html`
             <div class="flex items-start gap-2 leading-relaxed">
-              <span class="text-slate-600 flex-shrink-0">${log.timestamp}</span>
+              <span class="text-slate-600 shrink-0">${log.timestamp}</span>
               <span class="font-semibold ${
                 log.type === 'success' ? 'text-emerald-400' :
                 log.type === 'error' ? 'text-rose-400' :

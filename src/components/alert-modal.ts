@@ -23,7 +23,7 @@ export class AlertModal extends LitElement {
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
           <div class="p-6">
             <div class="flex items-center gap-4 mb-4">
-              <div class="p-3 rounded-xl flex-shrink-0 ${
+              <div class="p-3 rounded-xl shrink-0 ${
                 this.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
                 this.type === 'error' ? 'bg-rose-500/10 text-rose-400' :
                 'bg-indigo-500/10 text-indigo-400'
