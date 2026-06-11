@@ -640,11 +640,11 @@ export class SvgToBatchExporter extends LitElement {
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
                           </span>
-                          <span class="text-white font-semibold">배치 변환 진행 중...</span>
+                          <span class="text-white font-semibold">변환 진행 중...</span>
                         `
                       : html`
                           <span class="inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                          <span class="text-emerald-400 font-bold">배치 변환 완료!</span>
+                          <span class="text-emerald-400 font-bold">변환 완료!</span>
                         `}
                   </div>
                   <span class="text-slate-700">|</span>
