@@ -90,7 +90,9 @@ export class SvgToBatchExporter extends LitElement {
     }
 
     try {
-      this.dirHandle = await window.showDirectoryPicker();
+      this.dirHandle = await window.showDirectoryPicker({
+        mode: "readwrite",
+      });
 
       this.svgFiles = [];
       this.conversionLogs = [];
@@ -131,7 +133,9 @@ export class SvgToBatchExporter extends LitElement {
     }
 
     try {
-      this.outputDirHandle = await window.showDirectoryPicker();
+      this.outputDirHandle = await window.showDirectoryPicker({
+        mode: "readwrite",
+      });
       this.addLog(`출력 폴더가 지정되었습니다: ${this.outputDirHandle.name}`, "info");
     } catch (err: any) {
       if (err.name !== "AbortError") {
@@ -263,16 +267,9 @@ export class SvgToBatchExporter extends LitElement {
     if (isLocalDirMode && this.dirHandle) {
       try {
         const opts = { mode: "readwrite" as const };
-        
-        // 원본 파일을 지워야 하거나 별도의 출력 폴더를 지정하지 않은 경우에만 원본 폴더 쓰기 권한이 필요합니다.
-        const needsInputWritePermission = this.deleteOriginal || !hasOutputDir;
-        
-        if (needsInputWritePermission) {
-          if ((await this.dirHandle.queryPermission(opts)) !== "granted") {
-            await this.dirHandle.requestPermission(opts);
-          }
+        if ((await this.dirHandle.queryPermission(opts)) !== "granted") {
+          await this.dirHandle.requestPermission(opts);
         }
-        
         if (hasOutputDir && this.outputDirHandle) {
           if ((await this.outputDirHandle.queryPermission(opts)) !== "granted") {
             await this.outputDirHandle.requestPermission(opts);
@@ -281,7 +278,7 @@ export class SvgToBatchExporter extends LitElement {
             `로컬 출력 폴더가 준비되었습니다: ${this.outputDirHandle.name}`,
             "success",
           );
-        } else if (!hasOutputDir) {
+        } else {
           this.addLog(
             `출력 폴더가 지정되지 않아 원본 SVG 파일 경로에 직접 변환 파일을 생성합니다.`,
             "info",
@@ -722,7 +719,7 @@ export class SvgToBatchExporter extends LitElement {
                 `
               : html`
                   <i class="fa-solid fa-play"></i>
-                  <span class="">변환 시작</span>
+                  <span>변환 시작</span>
                 `}
           </button>
         </div>
