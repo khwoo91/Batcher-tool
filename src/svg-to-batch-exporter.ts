@@ -722,7 +722,7 @@ export class SvgToBatchExporter extends LitElement {
                 `
               : html`
                   <i class="fa-solid fa-play"></i>
-                  <span>변환 시작</span>
+                  <span class="">변환 시작</span>
                 `}
           </button>
         </div>
