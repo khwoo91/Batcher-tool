@@ -1,5 +1,5 @@
 import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import type { BatchFile } from "../types";
 import { locales } from "../locales";
 
@@ -13,6 +13,65 @@ export class FileQueue extends LitElement {
   @property({ type: Array }) files: BatchFile[] = [];
   @property({ type: Boolean }) isConverting = false;
   @property({ type: String }) lang: "ko" | "en" = "ko";
+  @property({ type: String }) activeTab: "svg" | "audio" = "svg";
+
+  @state() private isDragging = false;
+
+  private handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    if (this.isConverting) return;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = "copy";
+    }
+  }
+
+  private handleDragEnter(e: DragEvent) {
+    e.preventDefault();
+    if (this.isConverting) return;
+    this.isDragging = true;
+  }
+
+  private handleDragLeave(e: DragEvent) {
+    e.preventDefault();
+    if (this.isConverting) return;
+    
+    // Only turn off if actually leaving the component area
+    const rect = this.getBoundingClientRect();
+    if (
+      e.clientX < rect.left ||
+      e.clientX >= rect.right ||
+      e.clientY < rect.top ||
+      e.clientY >= rect.bottom
+    ) {
+      this.isDragging = false;
+    }
+  }
+
+  private handleDrop(e: DragEvent) {
+    e.preventDefault();
+    if (this.isConverting) return;
+    this.isDragging = false;
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.dispatchEvent(
+        new CustomEvent("drop-files", {
+          detail: files,
+          bubbles: true,
+          composed: true,
+        })
+      );
+    }
+  }
+
+  private handleLoadSample() {
+    this.dispatchEvent(
+      new CustomEvent("load-sample", {
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
 
   protected override createRenderRoot() {
     return this;
@@ -78,7 +137,23 @@ export class FileQueue extends LitElement {
     const someSelected = this.files.length > 0 && this.files.some(f => f.selected) && !allSelected;
 
     return html`
-      <div class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col h-100">
+      <div
+        class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col h-100 relative overflow-hidden"
+        @dragover="${this.handleDragOver}"
+        @dragenter="${this.handleDragEnter}"
+        @dragleave="${this.handleDragLeave}"
+        @drop="${this.handleDrop}"
+      >
+        <!-- Drag Over Overlay -->
+        ${this.isDragging
+          ? html`
+              <div class="absolute inset-0 bg-indigo-950/85 backdrop-blur-md border-2 border-dashed border-indigo-500 rounded-3xl flex flex-col items-center justify-center text-indigo-300 z-30 transition-all duration-300">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 animate-bounce"></i>
+                <span class="text-sm font-bold text-center px-4">${activeT.dragOverActive(this.activeTab === "svg")}</span>
+              </div>
+            `
+          : ""}
+
         <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
           <div class="flex items-center gap-3">
             <div class="flex items-center justify-center h-5">
@@ -102,12 +177,20 @@ export class FileQueue extends LitElement {
           ${this.files.length === 0
         ? html`
                 <div
-                  class="h-full flex flex-col items-center justify-center text-slate-500 space-y-3 py-10"
+                  class="h-full flex flex-col items-center justify-center text-slate-500 space-y-3 py-10 text-center px-4"
                 >
                   <i class="fa-solid fa-folder-open text-4xl text-slate-700"></i>
-                  <p class="text-xs font-semibold tracking-wide">
+                  <p class="text-xs font-semibold tracking-wide leading-relaxed">
                     ${activeT.emptyQueue}
                   </p>
+                  <button
+                    @click="${this.handleLoadSample}"
+                    ?disabled="${this.isConverting}"
+                    class="px-4.5 py-2.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/20 hover:border-indigo-500/40 rounded-xl text-xs font-bold transition-all shadow-inner active:scale-95 cursor-pointer mt-2 flex items-center justify-center gap-1.5"
+                  >
+                    <i class="fa-solid fa-wand-magic-sparkles text-[10px] animate-pulse"></i>
+                    <span>${activeT.trySampleEmpty}</span>
+                  </button>
                 </div>
               `
         : this.files.map(
