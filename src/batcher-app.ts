@@ -198,56 +198,154 @@ export class BatcherApp extends LitElement {
     }
   }
 
-  private async handleFallbackUpload(e: Event) {
+  private appendFiles(files: FileList | File[], isDropped = false) {
+    this.conversionProgress = 0;
+    const isSvg = this.activeTab === "svg";
+    const ext = isSvg ? ".svg" : ".wav";
+    const newBatchFiles: BatchFile[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.name.toLowerCase().endsWith(ext)) {
+        newBatchFiles.push({
+          name: file.name,
+          file: file,
+          relativePath: file.webkitRelativePath || file.name,
+          status: "pending",
+          selected: true,
+        });
+      }
+    }
+
+    if (newBatchFiles.length === 0) {
+      if (isSvg) {
+        this.showAlert(t[this.currentLang].noFallbackSvg, "error");
+      } else {
+        this.showAlert(t[this.currentLang].noFallbackWav, "error");
+      }
+      return;
+    }
+
+    const activeT = t[this.currentLang];
+
+    if (isSvg) {
+      const currentPaths = new Set(this.svgFiles.map((f) => f.relativePath));
+      const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
+      this.svgFiles = [...this.svgFiles, ...filteredNew];
+      const count = filteredNew.length;
+      if (count > 0) {
+        this.addLog(isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count), "success");
+      }
+    } else {
+      const currentPaths = new Set(this.audioFiles.map((f) => f.relativePath));
+      const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
+      this.audioFiles = [...this.audioFiles, ...filteredNew];
+      const count = filteredNew.length;
+      if (count > 0) {
+        this.addLog(isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count), "success");
+      }
+    }
+  }
+
+  private handleFallbackUpload(e: Event) {
     const target = e.target as HTMLInputElement;
     const files = target.files;
     if (!files || files.length === 0) return;
+    this.appendFiles(files, false);
+    target.value = ""; // Reset so same file can be uploaded again
+  }
 
+  private handleDropFiles(e: CustomEvent<FileList>) {
+    const files = e.detail;
+    if (!files || files.length === 0) return;
+    this.appendFiles(files, true);
+  }
+
+  private loadSampleFile() {
     this.conversionProgress = 0;
-    const filesList: BatchFile[] = [];
+    const isSvg = this.activeTab === "svg";
+    const activeT = t[this.currentLang];
 
-    if (this.activeTab === "svg") {
-      this.svgFiles = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.name.toLowerCase().endsWith(".svg")) {
-          filesList.push({
-            name: file.name,
-            file: file,
-            relativePath: file.webkitRelativePath || file.name,
-            status: "pending",
-            selected: true,
-          });
-        }
-      }
-      this.svgFiles = filesList;
+    if (isSvg) {
+      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="premiumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#6366f1" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#090d1f" rx="32" />
+  <circle cx="200" cy="200" r="100" fill="url(#premiumGrad)" filter="url(#shadow)" />
+  <path d="M170 150 L250 200 L170 250 Z" fill="#ffffff" rx="4" />
+</svg>`;
+      const file = new File([svgString], "sample.svg", { type: "image/svg+xml" });
+      
+      const sampleBatchFile: BatchFile = {
+        name: file.name,
+        file: file,
+        relativePath: file.name,
+        status: "pending",
+        selected: true,
+      };
 
-      if (this.svgFiles.length === 0) {
-        this.showAlert(t[this.currentLang].noFallbackSvg, "error");
-      } else {
-        this.addLog(t[this.currentLang].fallbackUploadDone(this.svgFiles.length));
-      }
+      this.svgFiles = [sampleBatchFile, ...this.svgFiles.filter((f) => f.relativePath !== file.name)];
+      this.addLog(activeT.sampleFileAdded("SVG"), "success");
+      this.showAlert(activeT.sampleFileAdded("SVG"), "success");
     } else {
-      this.audioFiles = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.name.toLowerCase().endsWith(".wav")) {
-          filesList.push({
-            name: file.name,
-            file: file,
-            relativePath: file.webkitRelativePath || file.name,
-            status: "pending",
-            selected: true,
-          });
-        }
-      }
-      this.audioFiles = filesList;
+      const sampleRate = 8000;
+      const duration = 1.0;
+      const numSamples = sampleRate * duration;
+      const buffer = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(buffer);
 
-      if (this.audioFiles.length === 0) {
-        this.showAlert(t[this.currentLang].noFallbackWav, "error");
-      } else {
-        this.addLog(t[this.currentLang].fallbackUploadDone(this.audioFiles.length));
+      const writeString = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+      };
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true); // Raw PCM
+      view.setUint16(22, 1, true); // Mono
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, numSamples * 2, true);
+
+      const frequency = 440;
+      let offset = 44;
+      for (let i = 0; i < numSamples; i++) {
+        const tVal = i / sampleRate;
+        const sampleVal = Math.sin(2 * Math.PI * frequency * tVal);
+        const intSample = Math.max(-32768, Math.min(32767, sampleVal * 32767));
+        view.setInt16(offset, intSample, true);
+        offset += 2;
       }
+
+      const blob = new Blob([buffer], { type: 'audio/wav' });
+      const file = new File([blob], 'sample.wav', { type: 'audio/wav' });
+
+      const sampleBatchFile: BatchFile = {
+        name: file.name,
+        file: file,
+        relativePath: file.name,
+        status: "pending",
+        selected: true,
+      };
+
+      this.audioFiles = [sampleBatchFile, ...this.audioFiles.filter((f) => f.relativePath !== file.name)];
+      this.addLog(activeT.sampleFileAdded("WAV"), "success");
+      this.showAlert(activeT.sampleFileAdded("WAV"), "success");
     }
   }
 
@@ -560,6 +658,7 @@ export class BatcherApp extends LitElement {
                     @select-output-folder="${this.selectOutputFolder}"
                     @reset-output-folder="${() => (this.svgOutputDirHandle = null)}"
                     @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
+                    @load-sample="${this.loadSampleFile}"
                     @change-format="${(e: CustomEvent<"png" | "jpg">) => (this.exportFormat = e.detail)}"
                     @change-scale="${(e: CustomEvent<number>) => (this.selectedScale = e.detail)}"
                     @change-suffix="${(e: CustomEvent<{ scale: number; suffix: string }>) =>
@@ -582,6 +681,7 @@ export class BatcherApp extends LitElement {
                     @select-output-folder="${this.selectOutputFolder}"
                     @reset-output-folder="${() => (this.audioOutputDirHandle = null)}"
                     @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
+                    @load-sample="${this.loadSampleFile}"
                     @change-bitrate="${(e: CustomEvent<number>) => (this.audioBitrate = e.detail)}"
                     @toggle-delete="${() => (this.audioDeleteOriginal = !this.audioDeleteOriginal)}"
                   ></audio-settings-panel>
@@ -595,9 +695,12 @@ export class BatcherApp extends LitElement {
               .lang="${this.currentLang}"
               .files="${currentFiles}"
               .isConverting="${this.isConverting}"
+              .activeTab="${this.activeTab}"
               @toggle-file-selected="${this.handleToggleFileSelected}"
               @toggle-all-files="${this.handleToggleAllFiles}"
               @delete-file="${this.handleDeleteFile}"
+              @drop-files="${this.handleDropFiles}"
+              @load-sample="${this.loadSampleFile}"
             ></file-queue>
 
             <!-- Logs Console -->
