@@ -82,8 +82,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              svg-Batcher는 대용량 SVG 벡터 이미지 파일을 브라우저 상에서 원하는 배율과 포맷(PNG, JPG)으로 빠르게 일괄 변환(Batch Export)해 주는 스마트 로컬 유틸리티
-              도구입니다.
+              svg-Batcher는 대용량 SVG 벡터 이미지 파일을 브라우저 상에서 원하는 배율과 포맷(PNG, JPG)으로 빠르게 일괄 변환(Batch Export)해 주는 스마트 로컬 유틸리티 도구입니다. 복잡한 개발 환경 세팅 없이 웹 브라우저에서 바로 작동하며, 디자이너와 개발자들을 위한 다양한 편의 기능을 완벽하게 지원합니다.
             </div>
           </div>
         </details>
@@ -99,9 +98,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              <strong>아니요, 절대 전송되지 않습니다!</strong> 본 사이트는 최신 브라우저의 File System Access API 및 가상 ZIP 라이브러리를 이용하여 모든 파일 읽기,
-              이미지 래스터라이징, 다운로드 빌드 프로세스를 <strong>100% 사용자의 웹 브라우저(Client-Side) 안에서 로컬로 처리</strong>합니다. 어떠한 네트워크 전송도 수행하지
-              않으므로 기밀이나 상업적 디자인 리소스 유출 걱정 없이 안심하고 사용하실 수 있습니다.
+              <strong>아니요, 절대 전송되지 않습니다!</strong> 본 사이트는 최신 브라우저의 File System Access API 및 가상 ZIP 라이브러리를 이용하여 모든 파일 읽기, 이미지 래스터라이징, 다운로드 빌드 프로세스를 <strong>100% 사용자의 웹 브라우저(Client-Side) 안에서 로컬로 처리</strong>합니다. 어떠한 네트워크 전송도 수행하지 않으므로 기밀이나 상업적 디자인 리소스 유출 걱정 없이 안심하고 사용하실 수 있습니다.
             </div>
           </div>
         </details>
@@ -117,9 +114,71 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              Google Chrome, Microsoft Edge 등 최신 WICG File System Access API를 지원하는 브라우저에서는 사용자의 원본 로컬 디렉토리 구조 그대로 이미지를
-              내보내거나 기존 파일을 정리하는 모드를 지원합니다. Safari, Firefox 등 해당 API를 미지원하는 브라우저의 경우에는 브라우저 안전 환경 안에서 폴더 구조를 유지한 채 ZIP 압축
-              패키지로 자동 빌드되어 일괄 다운로드하도록 처리됩니다.
+              Google Chrome, Microsoft Edge 등 최신 WICG File System Access API를 지원하는 브라우저에서는 사용자의 원본 로컬 디렉토리 구조 그대로 이미지를 내보내거나 기존 파일을 정리하는 모드를 지원합니다. Safari, Firefox 등 해당 API를 미지원하는 브라우저의 경우에는 브라우저 안전 환경 안에서 폴더 구조를 유지한 채 ZIP 압축 패키지로 자동 빌드되어 일괄 다운로드하도록 처리됩니다.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-folder-open"></i> 출력 하위 폴더명을 입력하지 않고 비워두면 어떻게 되나요?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              출력 하위 폴더명을 지정하지 않으면, <strong>각 SVG 파일이 들어있는 로컬 원본 서브디렉토리 경로 내에 직접 변환 파일을 생성</strong>합니다. 이 방식을 사용하면 기존의 폴더 트리 구조를 유지하면서 원본 벡터 파일 바로 옆에 변환된 이미지를 깔끔하게 배치할 수 있습니다.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i> 이미지 배율과 파일명 접미사는 어떻게 조정하나요?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              변환 설정 패널에서 필요한 배율(1.0x, 1.5x, 2.0x)을 각각 활성화할 수 있습니다. 또한 각 배율 옵션 우측의 텍스트 필드를 통해 <strong>파일명에 붙을 접미사(예: @2x, _hd)를 사용자가 직접 자유롭게 편집</strong>할 수 있으며, 변환 시 지정된 접미사가 파일명에 자동 적용되어 저장됩니다.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-trash-can"></i> '원본 SVG 파일 정리' 옵션을 활성화하면 어떻게 되나요?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              변환 프로세스가 성공적으로 끝나면, 변환에 사용되었던 <strong>기존 로컬 디렉토리 내의 원본 `.svg` 파일들을 자동으로 안전하게 삭제</strong>해 줍니다. 변환 작업 완료 후 불필요해진 원본 파일을 자동으로 비워주는 편리한 기능이지만, 삭제된 원본 파일은 다시 복구할 수 없으므로 <strong>중요한 원본 데이터는 사전에 반드시 백업</strong>해 두시는 것을 적극 권장합니다. (ZIP 압축 다운로드 모드에서는 지원하지 않는 로컬 전용 실험적 기능입니다.)
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-image"></i> 투명한 배경을 가진 SVG는 포맷별로 어떻게 변환되나요?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              <strong>PNG</strong> 포맷 선택 시 원본의 투명 채널(알파 채널)을 손실 없이 그대로 보존하여 내보냅니다. 반면 <strong>JPG</strong> 포맷 선택 시에는 투명 처리된 모든 배경 영역을 <strong>자동으로 깔끔한 흰색(#FFFFFF) 배경으로 대체</strong>하여 왜곡 없는 자연스러운 비트맵 이미지를 출력합니다.
             </div>
           </div>
         </details>
@@ -135,10 +194,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              <strong>네, 물론입니다.</strong> 본 도구 자체와 내부 변환 모듈은 MIT, BSD-3-Clause, SIL OFL 1.1 등 제약이 없는 완전 자유 오픈소스 라이선스 패키지로
-              빌드되었습니다. 따라서 변환 결과물에 어떠한 라이선스 제약도 부과하지 않으며 개인 포트폴리오는 물론, 유료 판매용 디자인 패키지나 상업용 앱 빌드 리소스 등 모든 비즈니스 환경에서 자유롭게
-              활용
-              및 배포하실 수 있습니다.
+              <strong>네, 물론입니다.</strong> 본 도구 자체와 내부 변환 모듈은 MIT, BSD-3-Clause, SIL OFL 1.1 등 제약이 없는 완전 자유 오픈소스 라이선스 패키지로 빌드되었습니다. 따라서 변환 결과물에 어떠한 라이선스 제약도 부과하지 않으며 개인 포트폴리오는 물론, 유료 판매용 디자인 패키지나 상업용 앱 빌드 리소스 등 모든 비즈니스 환경에서 자유롭게 활용 및 배포하실 수 있습니다.
             </div>
           </div>
         </details>
@@ -149,8 +205,7 @@
   <!-- SEO & FAQ Section for Google AdSense and Users (EN) -->
   <section id="faq-en" class="hidden max-w-7xl mx-auto px-6 py-16 border-t border-white/5 relative z-10 pb-20">
     <div class="max-w-3xl mx-auto">
-      <h2 class="text-3xl font-extrabold text-white mb-12 text-center tracking-tight">Frequently Asked Questions (FAQ)
-      </h2>
+      <h2 class="text-3xl font-extrabold text-white mb-12 text-center tracking-tight">Frequently Asked Questions (FAQ)</h2>
 
       <div class="space-y-4">
         <details class="glass-card-interactive rounded-2xl group">
@@ -164,9 +219,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              svg-Batcher is a smart local utility tool that quickly batch converts (Batch Export) large volumes of SVG
-              vector
-              image files into desired scales and formats (PNG, JPG) directly in the browser.
+              svg-Batcher is a smart local utility tool that quickly batch converts (Batch Export) large volumes of SVG vector image files into desired scales and formats (PNG, JPG) directly in the browser. It operates completely in your browser without requiring complex dev environments and supports diverse convenient features for designers and developers.
             </div>
           </div>
         </details>
@@ -182,10 +235,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              <strong>No, never!</strong> This site utilizes the latest browser File System Access API and virtual ZIP
-              library to process all file reading, image rasterization, and download building <strong>100% locally
-                inside your web browser (Client-Side)</strong>. No network transfer is performed, so you can safely use
-              it without worrying about leaks of confidential or commercial design resources.
+              <strong>No, never!</strong> This site utilizes the latest browser File System Access API and virtual ZIP library to process all file reading, image rasterization, and download building <strong>100% locally inside your web browser (Client-Side)</strong>. No network transfer is performed, so you can safely use it without worrying about leaks of confidential or commercial design resources.
             </div>
           </div>
         </details>
@@ -201,11 +251,71 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              Modern browsers like Google Chrome and Microsoft Edge that support the WICG File System Access API can
-              export images directly into your original local directories, maintaining directory structure and
-              optionally cleaning up original files. For browsers that do not support this API (such as Safari or
-              Firefox), files are automatically zipped in a virtual archive and offered as a single ZIP download,
-              keeping the folder structure intact.
+              Modern browsers like Google Chrome and Microsoft Edge that support the WICG File System Access API can export images directly into your original local directories, maintaining directory structure. For browsers that do not support this API (such as Safari or Firefox), files are automatically zipped in a virtual archive and offered as a single ZIP download, keeping the folder structure intact.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-folder-open"></i> What happens if I leave the Output Subfolder field empty?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              If left blank, the converted files will be **generated directly within the original subdirectory where each SVG is located**. This preserves your directory structure, placing converted images right next to their corresponding source vector files.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i> How do I adjust export scale and custom filename suffixes?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              You can toggle scale options (1.0x, 1.5x, 2.0x) in the settings panel. In addition, you can **freely customize filename suffixes (e.g., @2x, _hd)** using the text inputs next to each scale option. The specified suffix will be automatically appended to the exported file name.
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-trash-can"></i> What does the "Clean up original SVG files" option do?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              Once the export is successful, it will **automatically delete the original `.svg` files from your local directories**. This is convenient for organizing your files post-conversion, but since this action is permanent and irreversible, we **strongly recommend backing up important data** beforehand. (This experimental local-only feature is not supported in the ZIP download fallback mode.)
+            </div>
+          </div>
+        </details>
+
+        <details class="glass-card-interactive rounded-2xl group">
+          <summary
+            class="text-lg font-bold text-indigo-400 p-6 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-image"></i> How are transparent SVG files converted in different formats?
+            </span>
+            <i
+              class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200 group-open:rotate-180"></i>
+          </summary>
+          <div class="faq-content overflow-hidden">
+            <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
+              Choosing **PNG** preserves the alpha channel (transparency) of your original SVG without any loss. Choosing **JPG** automatically fills transparent background areas with **solid white (#FFFFFF)**, producing a clean, standard bitmap image.
             </div>
           </div>
         </details>
@@ -221,10 +331,7 @@
           </summary>
           <div class="faq-content overflow-hidden">
             <div class="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-4">
-              <strong>Yes, absolutely!</strong> This tool and its internal conversion modules are built on fully
-              open-source packages (MIT, BSD-3-Clause, SIL OFL 1.1) that have no commercial restrictions. We impose no
-              licensing terms on your outputs. You are free to use and distribute them in any environment, including
-              personal portfolios, commercial design kits, or paid application assets.
+              <strong>Yes, absolutely!</strong> This tool and its internal conversion modules are built on fully open-source packages (MIT, BSD-3-Clause, SIL OFL 1.1) that have no commercial restrictions. We impose no licensing terms on your outputs. You are free to use and distribute them in any environment, including personal portfolios, commercial design kits, or paid application assets.
             </div>
           </div>
         </details>
