@@ -115,12 +115,12 @@ export class BatcherApp extends LitElement {
 
   private handleLangChange(lang: "ko" | "en") {
     this.currentLang = lang;
-    localStorage.setItem("svg-batcher-lang", lang);
+    localStorage.setItem("batcher-lang", lang);
     this.updateStaticElements(lang);
   }
 
   override firstUpdated() {
-    const savedLang = localStorage.getItem("svg-batcher-lang");
+    const savedLang = localStorage.getItem("batcher-lang");
     if (savedLang === "en" || savedLang === "ko") {
       this.currentLang = savedLang as "ko" | "en";
     }
