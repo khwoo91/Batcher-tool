@@ -33,7 +33,7 @@ export class AppHeader extends LitElement {
     const savedTheme = localStorage.getItem("batcher-theme");
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldBeDark = savedTheme === "dark" || (savedTheme === null && systemPrefersDark);
-    
+
     this.isDark = shouldBeDark;
     if (shouldBeDark) {
       document.documentElement.classList.add("dark");
@@ -154,11 +154,7 @@ export class AppHeader extends LitElement {
             </svg>
           </div>
           <div>
-            <h1
-              class="text-xl font-extrabold tracking-tight text-slate-100 flex items-center gap-2 font-sans"
-            >
-              배처(Batcher)
-            </h1>
+            <h1 class="text-xl font-extrabold tracking-tight text-slate-100 flex items-center gap-2 font-sans">배처(Batcher)</h1>
             <p class="text-xs text-slate-400 font-medium tracking-wide">${desc}</p>
           </div>
         </div>
@@ -168,11 +164,9 @@ export class AppHeader extends LitElement {
           <button
             @click="${this.toggleTheme}"
             class="flex items-center justify-center w-10 h-10 bg-slate-950 border border-slate-800 hover:border-brand-primary/30 hover:bg-slate-900 text-slate-400 hover:text-brand-primary rounded-xl cursor-pointer focus:outline-none transition-all shadow-sm active:scale-95"
-            title="${this.lang === 'ko' ? '테마 변경' : 'Change Theme'}"
+            title="${this.lang === "ko" ? "테마 변경" : "Change Theme"}"
           >
-            ${this.isDark 
-              ? html`<i class="fa-solid fa-moon text-xs"></i>` 
-              : html`<i class="fa-regular fa-sun text-sm"></i>`}
+            ${this.isDark ? html`<i class="fa-solid fa-moon text-xs"></i>` : html`<i class="fa-regular fa-sun"></i> `}
           </button>
 
           <!-- Language Selector dropdown -->
