@@ -126,7 +126,7 @@ export class SettingsPanel extends LitElement {
         >
           <div class="absolute top-0 left-0 w-1.5 h-full bg-linear-to-b from-indigo-500 to-purple-600"></div>
           <h2
-            class="text-md font-bold mb-5 text-white flex items-center gap-2.5 font-sans"
+            class="text-md font-bold mb-5 text-slate-100 flex items-center gap-2.5 font-sans"
           >
             <span
               class="bg-linear-to-r from-indigo-500 to-purple-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.3)]"
@@ -154,12 +154,12 @@ export class SettingsPanel extends LitElement {
                     <button
                       @click="${this.handleSelectFolder}"
                       ?disabled="${this.isConverting}"
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-indigo-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-brand-bg disabled:opacity-50 rounded-2xl border border-dashed border-slate-800 hover:border-brand-primary hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <i
                         class="fa-regular fa-folder-open text-2xl text-indigo-400 group-hover:scale-110 transition-transform duration-300"
                       ></i>
-                      <span class="text-xs font-semibold text-slate-200"
+                      <span class="text-xs font-semibold text-slate-100"
                         >${activeT.localFolderSelect}</span
                       >
                     </button>
@@ -167,12 +167,12 @@ export class SettingsPanel extends LitElement {
                     <button
                       @click="${this.handleTriggerFileInput}"
                       ?disabled="${this.isConverting}"
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-indigo-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-brand-bg disabled:opacity-50 rounded-2xl border border-dashed border-slate-800 hover:border-brand-primary hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <i
                         class="fa-regular fa-file-image text-2xl text-emerald-400 group-hover:scale-110 transition-transform duration-300"
                       ></i>
-                      <span class="text-xs font-semibold text-slate-200"
+                      <span class="text-xs font-semibold text-slate-100"
                         >${activeT.selectFiles}</span
                       >
                     </button>
@@ -224,7 +224,7 @@ export class SettingsPanel extends LitElement {
                 <div class="space-y-4">
                   <div class="grid grid-cols-2 gap-3">
                     <label
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-amber-950/15 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-amber-bg text-slate-100 hover:text-amber-text rounded-2xl border border-dashed border-slate-800 hover:border-amber-border hover:shadow-[0_0_20px_rgba(217,119,6,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <input
                         type="file"
@@ -238,7 +238,7 @@ export class SettingsPanel extends LitElement {
                       <i
                         class="fa-solid fa-cloud-arrow-up text-2xl text-amber-400 group-hover:scale-110 transition-transform duration-300"
                       ></i>
-                      <span class="text-xs font-semibold text-slate-200"
+                      <span class="text-xs font-semibold text-slate-100"
                         >${activeT.fallbackUpload}</span
                       >
                     </label>
@@ -246,12 +246,12 @@ export class SettingsPanel extends LitElement {
                     <button
                       @click="${this.handleTriggerFileInput}"
                       ?disabled="${this.isConverting}"
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-amber-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-amber-bg disabled:opacity-50 text-slate-100 hover:text-amber-text rounded-2xl border border-dashed border-slate-800 hover:border-amber-border hover:shadow-[0_0_20px_rgba(217,119,6,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <i
                         class="fa-regular fa-file-image text-2xl text-emerald-400 group-hover:scale-110 transition-transform duration-300"
                       ></i>
-                      <span class="text-xs font-semibold text-slate-200"
+                      <span class="text-xs font-semibold text-slate-100"
                         >${activeT.selectFiles}</span
                       >
                     </button>
@@ -260,9 +260,9 @@ export class SettingsPanel extends LitElement {
                   ${this.svgFilesCount > 0
                     ? html`
                         <div
-                          class="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl text-xs flex items-center justify-between shadow-inner"
+                          class="p-3 bg-amber-bg border border-amber-border rounded-xl text-xs flex items-center justify-between shadow-inner"
                         >
-                          <div class="flex items-center gap-2 text-amber-300 font-medium">
+                          <div class="flex items-center gap-2 text-amber-text font-medium">
                             <i class="fa-solid fa-folder-tree text-sm"></i>
                             <span class="font-bold truncate max-w-50"
                               >${this.lang === 'ko' ? '수동 로드된 임포트 셋' : 'Manually Imported Set'}</span
@@ -284,11 +284,11 @@ export class SettingsPanel extends LitElement {
               `}
 
           <!-- Try with Sample File Button -->
-          <div class="mt-4 pt-4 border-t border-white/5">
+          <div class="mt-4 pt-4 border-t border-slate-800">
             <button
               @click="${this.handleLoadSample}"
               ?disabled="${this.isConverting}"
-              class="w-full py-3 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]"
+              class="w-full py-3 px-4 bg-success-bg hover:opacity-90 text-success-text border border-success-border rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]"
             >
               <i class="fa-solid fa-wand-magic-sparkles text-xs animate-pulse"></i>
               <span>${activeT.trySample}</span>
@@ -305,7 +305,7 @@ export class SettingsPanel extends LitElement {
         >
           <div class="absolute top-0 left-0 w-1.5 h-full bg-linear-to-b from-indigo-500 to-purple-600"></div>
           <h2
-            class="text-md font-bold mb-5 text-white flex items-center gap-2.5 font-sans"
+            class="text-md font-bold mb-5 text-slate-100 flex items-center gap-2.5 font-sans"
           >
             <span
               class="bg-linear-to-r from-indigo-500 to-purple-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.3)]"
@@ -327,8 +327,8 @@ export class SettingsPanel extends LitElement {
                   ?disabled="${this.isConverting}"
                   class="py-2.5 rounded-xl border text-xs font-bold transition-all font-sans cursor-pointer active:scale-95 ${this
                     .exportFormat === "png"
-                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                    : "bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10 hover:text-slate-300"}"
+                    ? "bg-brand-bg border-brand-primary text-brand-text shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+                    : "bg-slate-950 border-slate-800 text-slate-400 hover:border-brand-primary/40 hover:text-slate-200"}"
                 >
                   PNG
                 </button>
@@ -337,15 +337,15 @@ export class SettingsPanel extends LitElement {
                   ?disabled="${this.isConverting}"
                   class="py-2.5 rounded-xl border text-xs font-bold transition-all font-sans cursor-pointer active:scale-95 ${this
                     .exportFormat === "jpg"
-                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                    : "bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10 hover:text-slate-300"}"
+                    ? "bg-brand-bg border-brand-primary text-brand-text shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+                    : "bg-slate-950 border-slate-800 text-slate-400 hover:border-brand-primary/40 hover:text-slate-200"}"
                 >
                   JPG
                 </button>
               </div>
             </div>
 
-            <div class="border-t border-white/5 my-4"></div>
+            <div class="border-t border-slate-800 my-4"></div>
 
             <!-- Single scale selection like radio button (Up to 2x) -->
             <div>
@@ -366,19 +366,19 @@ export class SettingsPanel extends LitElement {
                           ?disabled="${this.isConverting}"
                           class="flex-1 p-3.5 rounded-xl border transition-all flex items-center justify-between font-sans cursor-pointer ${this
                             .selectedScale === item.scale
-                            ? "bg-indigo-500/5 border-indigo-500/40 text-white font-semibold hover:border-indigo-500/60 shadow-[0_0_15px_rgba(99,102,241,0.05)]"
-                            : "bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10 hover:text-slate-300"}"
+                            ? "bg-brand-bg border-brand-primary text-brand-text font-semibold hover:border-brand-primary/60 shadow-[0_0_15px_rgba(99,102,241,0.05)]"
+                            : "bg-slate-950 border-slate-800 text-slate-400 hover:border-brand-primary/40 hover:text-slate-200"}"
                         >
                           <span class="text-xs font-bold">${itemLabel}</span>
                           <div
                             class="w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center ${this
                               .selectedScale === item.scale
-                              ? "border-indigo-500 bg-indigo-955/40 shadow-[0_0_8px_rgba(99,102,241,0.4)]"
-                              : "border-slate-700 bg-slate-950/40"}"
+                              ? "border-brand-primary bg-brand-bg shadow-[0_0_8px_rgba(99,102,241,0.4)]"
+                              : "border-slate-500 bg-slate-950"}"
                           >
                             ${this.selectedScale === item.scale
                               ? html`<div
-                                  class="w-2 h-2 rounded-full bg-indigo-400"
+                                  class="w-2 h-2 rounded-full bg-brand-primary"
                                 ></div>`
                               : ""}
                           </div>
@@ -392,7 +392,7 @@ export class SettingsPanel extends LitElement {
                               this.handleSuffixInput(item.scale, e)}"
                             ?disabled="${this.isConverting}"
                             placeholder="${activeT.placeholderSuffix}"
-                            class="w-full px-3.5 py-4 bg-slate-950/60 border border-white/5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 rounded-xl text-slate-200 text-xs focus:outline-none transition-all font-mono shadow-inner"
+                            class="w-full px-3.5 py-4 bg-slate-950 border border-slate-800 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 rounded-xl text-slate-100 text-xs focus:outline-none transition-all font-mono shadow-inner"
                             title="${activeT.suffixTooltip}"
                           />
                         </div>
@@ -403,7 +403,7 @@ export class SettingsPanel extends LitElement {
               </div>
             </div>
 
-            <div class="border-t border-white/5 my-4"></div>
+            <div class="border-t border-slate-800 my-4"></div>
 
             <!-- Directory root setting -->
             <div>
@@ -418,9 +418,9 @@ export class SettingsPanel extends LitElement {
                       ${this.outputDirHandle
                         ? html`
                             <div
-                              class="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-xs flex items-center justify-between shadow-inner"
+                              class="p-3 bg-brand-bg border border-brand-border rounded-xl text-xs flex items-center justify-between shadow-inner"
                             >
-                              <div class="flex items-center gap-2 text-indigo-300 font-medium">
+                              <div class="flex items-center gap-2 text-brand-text font-medium">
                                 <i class="fa-regular fa-folder-open text-sm"></i>
                                 <span class="font-bold truncate max-w-50" title="${this.outputDirHandle.name}"
                                   >${this.outputDirHandle.name}</span
@@ -439,16 +439,16 @@ export class SettingsPanel extends LitElement {
                             <button
                               @click="${this.handleSelectOutputFolder}"
                               ?disabled="${this.isConverting}"
-                              class="w-full py-3.5 px-4 bg-slate-950/40 hover:bg-slate-900/50 text-slate-300 rounded-xl border border-dashed border-white/5 hover:border-indigo-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer font-sans text-xs active:scale-[0.98]"
+                              class="w-full py-3.5 px-4 bg-slate-950 hover:bg-slate-900 text-slate-300 rounded-xl border border-dashed border-slate-800 hover:border-brand-primary/30 transition-all flex items-center justify-center gap-2 cursor-pointer font-sans text-xs active:scale-[0.98]"
                             >
-                              <i class="fa-regular fa-folder-open text-base text-indigo-400"></i>
+                              <i class="fa-regular fa-folder-open text-base text-brand-primary"></i>
                               <span class="font-semibold">${activeT.selectOutputDir}</span>
                             </button>
                           `}
                     </div>
                   `
                 : html`
-                    <div class="p-3 bg-slate-950/40 rounded-xl border border-white/5 text-xs text-slate-500 font-sans leading-relaxed shadow-inner">
+                    <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-500 font-sans leading-relaxed shadow-inner">
                       <i class="fa-solid fa-circle-info text-amber-500/80 mr-1"></i>
                       ${activeT.noOutputDirCompat}
                     </div>
@@ -458,20 +458,20 @@ export class SettingsPanel extends LitElement {
               </p>
             </div>
 
-            <div class="border-t border-white/5 my-4"></div>
+            <div class="border-t border-slate-800 my-4"></div>
 
             <!-- Option: Delete Original SVG -->
-            <div class="bg-slate-950/40 p-4.5 rounded-2xl border border-white/5 shadow-inner">
+            <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 shadow-inner">
               <label class="flex items-start gap-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   ?checked="${this.deleteOriginal}"
                   ?disabled="${this.isConverting}"
                   @change="${this.handleToggleDelete}"
-                  class="w-5 h-5 rounded-lg text-indigo-600 bg-slate-950 border-white/5 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer mt-0.5"
+                  class="w-5 h-5 rounded-lg text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer mt-0.5"
                 />
                 <div class="text-sm">
-                  <span class="font-bold text-slate-200 block"
+                  <span class="font-bold text-slate-100 block"
                     >${activeT.deleteOriginalLabel}</span
                   >
                   <span class="text-slate-500 block mt-1 font-sans leading-relaxed"

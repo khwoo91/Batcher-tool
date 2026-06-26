@@ -27,10 +27,10 @@ export class LogConsole extends LitElement {
     return html`
       <div
         class="glass-panel rounded-3xl p-6 shadow-xl flex flex-col h-70">
-        <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
           <div class="flex items-center gap-3">
-          <i class="fa-solid fa-terminal text-indigo-400 text-xs"></i>
-          <span class="text-sm font-bold text-white tracking-wide font-sans">${title}</span>
+          <i class="fa-solid fa-terminal text-brand-primary text-xs"></i>
+          <span class="text-sm font-bold text-slate-100 tracking-wide font-sans">${title}</span>
           <!-- Window Control Dots -->
           <div class="flex gap-1.5 mr-1 shrink-0">
             <span class="w-2.5 h-2.5 rounded-full bg-rose-500/50"></span>
@@ -60,12 +60,12 @@ export class LogConsole extends LitElement {
                     <span class="text-slate-600 shrink-0 font-sans">${log.timestamp}</span>
                     <span
                       class="font-bold ${log.type === "success"
-              ? "text-emerald-400"
+              ? "text-success-text"
               : log.type === "error"
-                ? "text-rose-400"
+                ? "text-warning-text"
                 : log.type === "warning"
-                  ? "text-amber-400"
-                  : "text-slate-300"}">${log.text}</span>
+                  ? "text-amber-text"
+                  : "text-slate-200"}">${log.text}</span>
                   </div>`,
         )}
         </div>

@@ -2,6 +2,7 @@ export const en = {
   tabs: {
     svg: "SVG Image Export",
     audio: "Audio Convert (MP3)",
+    rename: "Batch File Rename",
   },
   main: {
     compatAlert: "This browser does not support the File System Access API. Fallback file upload is used.",
@@ -76,6 +77,21 @@ export const en = {
     btnConvert: "Start Conversion",
     btnConverting: "Converting...",
     baseScale: "1.0x (Default)",
+    noRenameFiles: "No files in queue to rename. Please select a folder or upload files first.",
+    noSelectedRename: "No files selected. Please select at least one file to rename.",
+    startRenameProcess: "Starting batch rename process...",
+    renameSuccess: (relPath: string, outName: string) => `Success: ${relPath} → ${outName}`,
+    renameFail: (relPath: string, msg: string) => `Failed: ${relPath} - ${msg}`,
+    deleteSuccess: (relPath: string) => `Deleted from local disk: ${relPath}`,
+    deleteFail: (relPath: string, msg: string) => `Failed to delete: ${relPath} (${msg})`,
+    alertRenameSuccessText: (isLocal: boolean) => {
+      return isLocal 
+        ? "All file names have been physically renamed in the local folder successfully."
+        : "Due to browser security restrictions (Safari/Firefox, etc.), renamed files were downloaded as a ZIP archive containing the virtual directory layout.";
+    },
+    alertDeleteConfirm: (count: number) => `Are you sure you want to permanently delete the ${count} selected files from the local device (your computer)?\nThis action cannot be undone, and original files will be deleted directly.`,
+    alertDeleteSuccess: (success: number, fail: number) => `File deletion complete.\n(Success: ${success}, Failed: ${fail})`,
+    compatRenameBannerText: "Your current browser does not support the latest APIs to directly rename or delete files in local directories. Instead, you can download a compiled ZIP package containing all the renamed files.",
   },
   settings: {
     linkFolder: "Link Target SVG Folder",
@@ -132,6 +148,62 @@ export const en = {
     deleteOriginalLabel: "Auto-delete original audio file after conversion",
     deleteOriginalDesc: "Removes original audio (.wav, .mp3) files from the target directory after conversion completes successfully.",
     deleteOriginalAlert: "Original files can only be controlled when a local directory is successfully linked to the browser.",
+  },
+  renameSettings: {
+    linkFolder: "Link Target Workspace Folder",
+    localFolderSelect: "Specify Local Directory",
+    folderAutoFetch: "Rename all files inside the workspace directory according to rules.",
+    inputExtsLabel: "Filter by File Extensions (Leave blank to load all)",
+    filesLoaded: (count: number) => `${count} files loaded`,
+    noFolderSelected: "No local directory selected.",
+    fallbackUpload: "Upload Workspace Folder",
+    fallbackUploadDesc: "Upload and import directory contents.",
+    selectFiles: "Select Files",
+    trySample: "Add Sample Files",
+    trySampleDesc: "Add dummy text files to the queue for testing name modifications.",
+    filesDetected: (count: number) => `${count} files detected`,
+    waitingImport: "Waiting for files import...",
+    rulesHeader: "Configure Rename Rules",
+
+    replaceHeader: "Replace Text",
+    replaceFind: "Find text",
+    replaceReplace: "Replace with",
+    btnApply: "Apply",
+
+    prefixHeader: "Add Prefix / Suffix",
+    prefixLabel: "Add prefix text",
+    suffixLabel: "Add suffix text",
+
+    removeHeader: "Remove Range of Characters",
+    removeStart: "Start position (1-based)",
+    removeLen: "Number of characters",
+
+    cleanHeader: "Batch Simplification & Clean",
+    btnKeepNumbers: "Keep only numbers",
+    btnRemoveBrackets: "Remove text inside brackets",
+    btnDeleteAllName: "Clear Entire Filename",
+
+    numberingHeader: "Add Sequence Numbers",
+    numberingStart: "Start number",
+    numberingDigits: "Number padding digits",
+    numberingPosition: "Number placement",
+    posPrefix: "Insert at front",
+    posSuffix: "Insert at back",
+
+    extHeader: "Change / Modify Extensions",
+    extMode: "Extension operation",
+    extModeKeep: "Keep extension",
+    extModeRemove: "Remove extension",
+    extModeChange: "Change extension",
+    extNew: "New extension (e.g. .png)",
+
+    historyHeader: "Rename History",
+    btnUndo: "Undo last rule",
+    btnResetNames: "Restore to original names",
+
+    deleteHeader: "Dangerous Operation (Permanently delete files)",
+    btnDeleteSelected: "Permanently delete selected files",
+    deleteWarning: "This operation is irreversible. Files will be deleted directly from your computer's local disk."
   },
   queue: {
     selectAll: "Select / Deselect All",

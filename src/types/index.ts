@@ -5,6 +5,8 @@ export interface BatchFile {
   status: "pending" | "processing" | "success" | "error";
   errorMsg?: string;
   selected?: boolean;
+  newName?: string;
+  originalName?: string;
 }
 
 export interface ScaleOption {

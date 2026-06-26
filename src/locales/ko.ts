@@ -2,6 +2,7 @@ export const ko = {
   tabs: {
     svg: "SVG 이미지 변환",
     audio: "오디오 변환 (MP3)",
+    rename: "파일 일괄 변경",
   },
   main: {
     compatAlert: "이 브라우저는 폴더 직접 선택 API를 지원하지 않습니다. 파일 탐색기 기반 업로드를 사용합니다.",
@@ -76,6 +77,21 @@ export const ko = {
     btnConvert: "변환 시작",
     btnConverting: "변환 중...",
     baseScale: "1.0x (기본)",
+    noRenameFiles: "변경할 파일이 대기열에 존재하지 않습니다. 먼저 폴더를 선택하거나 업로드 해주세요.",
+    noSelectedRename: "선택된 파일이 없습니다. 이름을 변경할 파일을 한 개 이상 선택해 주세요.",
+    startRenameProcess: "이름 일괄 변경 프로세스를 시작합니다...",
+    renameSuccess: (relPath: string, outName: string) => `성공: ${relPath} → ${outName}`,
+    renameFail: (relPath: string, msg: string) => `실패: ${relPath} - ${msg}`,
+    deleteSuccess: (relPath: string) => `로컬 디스크에서 삭제 완료: ${relPath}`,
+    deleteFail: (relPath: string, msg: string) => `삭제 실패: ${relPath} (${msg})`,
+    alertRenameSuccessText: (isLocal: boolean) => {
+      return isLocal 
+        ? "로컬 폴더 안의 파일명들이 성공적으로 모두 물리 변경되었습니다."
+        : "브라우저 보안 제약(Safari/Firefox 등)으로 인해 이름이 변경된 파일들이 가상 폴더 구조를 포함한 ZIP 다운로드로 제공되었습니다.";
+    },
+    alertDeleteConfirm: (count: number) => `정말로 선택된 ${count}개의 파일을 로컬 디바이스(사용자 컴퓨터)에서 영구적으로 삭제하시겠습니까?\n이 작업은 되돌릴 수 없으며 원본 파일이 직접 삭제됩니다.`,
+    alertDeleteSuccess: (success: number, fail: number) => `파일 삭제가 완료되었습니다.\n(성공: ${success}건, 실패: ${fail}건)`,
+    compatRenameBannerText: "현재 사용 중인 브라우저는 로컬 디렉토리 내의 파일명을 직접 변경하거나 삭제하는 최신 API를 지원하지 않습니다. 대신, 이름이 바뀐 가상의 파일들을 ZIP 압축 파일 형태로 일괄 다운로드받을 수 있습니다.",
   },
   settings: {
     linkFolder: "대상 SVG 폴더 연동하기",
@@ -132,6 +148,62 @@ export const ko = {
     deleteOriginalLabel: "변환 후 원본 오디오 파일 자동 제거",
     deleteOriginalDesc: "변환 프로세스가 완전히 정상 종료되면 해당 로컬 원본 오디오 파일(.wav, .mp3)을 대상 폴더에서 삭제합니다.",
     deleteOriginalAlert: "로컬 디렉토리가 브라우저 상에 정상 연동되어 있어야 원본 제어가 가능합니다.",
+  },
+  renameSettings: {
+    linkFolder: "대상 작업 폴더 연동하기",
+    localFolderSelect: "로컬 디렉토리(폴더) 지정",
+    folderAutoFetch: "폴더 내의 모든 파일 이름을 규칙에 따라 일괄 변경합니다.",
+    inputExtsLabel: "필터링할 파일 확장자 (비워두면 전체 가져오기)",
+    filesLoaded: (count: number) => `${count}개 파일 로드됨`,
+    noFolderSelected: "지정된 로컬 디렉토리가 없습니다.",
+    fallbackUpload: "작업 폴더 선택 업로드",
+    fallbackUploadDesc: "폴더 내부를 업로드 형식으로 가져옵니다.",
+    selectFiles: "개별 파일 선택",
+    trySample: "샘플 파일 추가하기",
+    trySampleDesc: "이름 변경 테스트용 텍스트 샘플들을 대기열에 추가합니다.",
+    filesDetected: (count: number) => `${count}개 파일 감지됨`,
+    waitingImport: "작업 파일 임포트 대기 중",
+    rulesHeader: "이름 변경 규칙 설정",
+
+    replaceHeader: "문자열 바꾸기",
+    replaceFind: "찾을 글자",
+    replaceReplace: "바꿀 글자",
+    btnApply: "적용",
+
+    prefixHeader: "앞이름 / 뒷이름 붙이기",
+    prefixLabel: "앞에 붙일 글자",
+    suffixLabel: "뒤에 붙일 글자",
+
+    removeHeader: "특정 위치 지우기",
+    removeStart: "시작 위치 (1부터 시작)",
+    removeLen: "지울 글자 수",
+
+    cleanHeader: "일괄 정리 및 지우기",
+    btnKeepNumbers: "숫자만 남기기",
+    btnRemoveBrackets: "괄호 안 내용 지우기",
+    btnDeleteAllName: "파일명 전체 삭제",
+
+    numberingHeader: "일련번호 붙이기",
+    numberingStart: "시작 번호",
+    numberingDigits: "번호 자리수",
+    numberingPosition: "번호 위치",
+    posPrefix: "이름 앞에 붙이기",
+    posSuffix: "이름 뒤에 붙이기",
+
+    extHeader: "확장자 변경 및 추가",
+    extMode: "확장자 작업 선택",
+    extModeKeep: "확장자 유지",
+    extModeRemove: "확장자 삭제",
+    extModeChange: "확장자 변경",
+    extNew: "새 확장자 (예: .png)",
+
+    historyHeader: "이름 변경 히스토리",
+    btnUndo: "마지막 작업 취소",
+    btnResetNames: "원래 이름으로 복원",
+
+    deleteHeader: "위험 작업 (로컬 파일 영구 제거)",
+    btnDeleteSelected: "선택 파일 로컬디스크에서 영구 삭제",
+    deleteWarning: "이 작업은 되돌릴 수 없으며, 사용자 컴퓨터의 디스크에서 선택한 파일들이 영구히 즉시 지워집니다."
   },
   queue: {
     selectAll: "전체 선택 / 해제",

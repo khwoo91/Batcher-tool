@@ -35,8 +35,10 @@ export async function scanDirectory(
     ? extension.map((ext) => ext.toLowerCase())
     : [extension.toLowerCase()];
 
+  const matchAll = extensions.includes("*") || extensions.includes(".*") || extensions.includes("");
+
   for await (const entry of dirHandle.values()) {
-    const isMatched = entry.kind === "file" && extensions.some((ext) => entry.name.toLowerCase().endsWith(ext));
+    const isMatched = entry.kind === "file" && (matchAll || extensions.some((ext) => entry.name.toLowerCase().endsWith(ext)));
     if (isMatched) {
       const file = await (entry as FileSystemFileHandle).getFile();
       fileAccumulator.push({

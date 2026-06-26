@@ -117,7 +117,7 @@ export class AudioSettingsPanel extends LitElement {
         <!-- Step 1: Directory Picker Card -->
         <div class="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-linear-to-b from-indigo-500 to-purple-600"></div>
-          <h2 class="text-md font-bold mb-5 text-white flex items-center gap-2.5 font-sans">
+          <h2 class="text-md font-bold mb-5 text-slate-100 flex items-center gap-2.5 font-sans">
             <span
               class="bg-linear-to-r from-indigo-500 to-purple-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.3)]"
             >
@@ -148,8 +148,8 @@ export class AudioSettingsPanel extends LitElement {
                     @click="${() => this.handleToggleInputExt(ext)}"
                     ?disabled="${this.isConverting}"
                     class="pl-3 pr-4 py-2 rounded-xl text-xs font-bold font-sans cursor-pointer transition-all border flex items-center gap-1.5 ${isSelected
-                      ? "bg-indigo-500/10 text-indigo-300 border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.12)]"
-                      : "bg-slate-950/40 text-slate-500 border-white/5 hover:border-white/10 hover:text-slate-300"}"
+                      ? "bg-brand-bg text-brand-text border-brand-border shadow-[0_0_12px_rgba(99,102,241,0.12)]"
+                      : "bg-slate-950 text-slate-500 border-slate-800 hover:border-brand-primary/40 hover:text-slate-200"}"
                   >
                     ${isSelected
                       ? html`<i class="fa-solid fa-square-check text-indigo-400 text-sm relative top-[2px]"></i>`
@@ -169,19 +169,19 @@ export class AudioSettingsPanel extends LitElement {
                     <button
                       @click="${this.handleSelectFolder}"
                       ?disabled="${this.isConverting}"
-                      class="w-full py-4 px-4 bg-slate-950/40 hover:bg-indigo-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="w-full py-4 px-4 bg-slate-950 hover:bg-brand-bg disabled:opacity-50 text-slate-100 rounded-2xl border border-dashed border-slate-800 hover:border-brand-primary hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <i class="fa-regular fa-folder-open text-2xl text-indigo-400 group-hover:scale-110 transition-transform duration-300"></i>
-                      <span class="text-xs font-semibold text-slate-200"> ${activeT.localFolderSelect} </span>
+                      <span class="text-xs font-semibold text-slate-100"> ${activeT.localFolderSelect} </span>
                     </button>
 
                     <button
                       @click="${this.handleTriggerFileInput}"
                       ?disabled="${this.isConverting}"
-                      class="w-full py-4 px-4 bg-slate-950/40 hover:bg-indigo-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="w-full py-4 px-4 bg-slate-950 hover:bg-brand-bg disabled:opacity-50 text-slate-100 rounded-2xl border border-dashed border-slate-800 hover:border-brand-primary hover:shadow-[0_0_20px_rgba(99,102,241,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
-                      <i class="fa-regular fa-file text-2xl text-purple-400 group-hover:scale-110 transition-transform duration-300"></i>
-                      <span class="text-xs font-semibold text-slate-200"> ${activeT.selectFiles} </span>
+                      <i class="fa-regular fa-file-image text-2xl text-emerald-400 group-hover:scale-110 transition-transform duration-300"></i>
+                      <span class="text-xs font-semibold text-slate-100"> ${activeT.selectFiles} </span>
                     </button>
                   </div>
 
@@ -221,7 +221,7 @@ export class AudioSettingsPanel extends LitElement {
                 <div class="space-y-4">
                   <div class="grid grid-cols-2 gap-3">
                     <label
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-amber-950/15 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-amber-bg text-slate-100 hover:text-amber-text rounded-2xl border border-dashed border-slate-800 hover:border-amber-border hover:shadow-[0_0_20px_rgba(217,119,6,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
                       <input
                         type="file"
@@ -234,23 +234,23 @@ export class AudioSettingsPanel extends LitElement {
                         accept="${this.inputExts.join(",")}"
                       />
                       <i class="fa-solid fa-cloud-arrow-up text-2xl text-amber-400 group-hover:scale-110 transition-transform duration-300"></i>
-                      <span class="text-xs font-semibold text-slate-200"> ${activeT.fallbackUpload} </span>
+                      <span class="text-xs font-semibold text-slate-100"> ${activeT.fallbackUpload} </span>
                     </label>
 
                     <button
                       @click="${this.handleTriggerFileInput}"
                       ?disabled="${this.isConverting}"
-                      class="py-4 px-4 bg-slate-950/40 hover:bg-amber-950/15 disabled:opacity-50 text-white rounded-2xl border border-dashed border-slate-800/80 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
+                      class="py-4 px-4 bg-slate-950 hover:bg-amber-bg disabled:opacity-50 text-slate-100 hover:text-amber-text rounded-2xl border border-dashed border-slate-800 hover:border-amber-border hover:shadow-[0_0_20px_rgba(217,119,6,0.05)] transition-all flex flex-col items-center justify-center gap-2.5 cursor-pointer group font-sans active:scale-[0.98] text-center"
                     >
-                      <i class="fa-regular fa-file text-2xl text-purple-400 group-hover:scale-110 transition-transform duration-300"></i>
-                      <span class="text-xs font-semibold text-slate-200"> ${activeT.selectFiles} </span>
+                      <i class="fa-regular fa-file text-2xl text-purple-primary group-hover:scale-110 transition-transform duration-300"></i>
+                      <span class="text-xs font-semibold text-slate-100"> ${activeT.selectFiles} </span>
                     </button>
                   </div>
 
                   ${this.filesCount > 0
                     ? html`
-                        <div class="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl text-xs flex items-center justify-between shadow-inner">
-                          <div class="flex items-center gap-2 text-amber-300 font-medium">
+                        <div class="p-3 bg-amber-bg border border-amber-border rounded-xl text-xs flex items-center justify-between shadow-inner">
+                          <div class="flex items-center gap-2 text-amber-text font-medium">
                             <i class="fa-solid fa-folder-tree text-sm"></i>
                             <span class="font-bold truncate max-w-50">
                               ${this.lang === "ko" ? "수동 로드된 임포트 셋" : "Manually Imported Set"}
@@ -268,11 +268,11 @@ export class AudioSettingsPanel extends LitElement {
               `}
 
           <!-- Try with Sample File Button -->
-          <div class="mt-4 pt-4 border-t border-white/5">
+          <div class="mt-4 pt-4 border-t border-slate-800">
             <button
               @click="${this.handleLoadSample}"
               ?disabled="${this.isConverting}"
-              class="w-full py-3 px-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 hover:border-purple-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]"
+              class="w-full py-3 px-4 bg-purple-bg hover:bg-purple-primary/20 text-purple-text border border-purple-border hover:border-purple-primary/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.97]"
             >
               <i class="fa-solid fa-wand-magic-sparkles text-xs animate-pulse"></i>
               <span>${activeT.trySample}</span>
@@ -284,7 +284,7 @@ export class AudioSettingsPanel extends LitElement {
         <!-- Step 2: Settings Card -->
         <div class="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-linear-to-b from-indigo-500 to-purple-600"></div>
-          <h2 class="text-md font-bold mb-5 text-white flex items-center gap-2.5 font-sans">
+          <h2 class="text-md font-bold mb-5 text-slate-100 flex items-center gap-2.5 font-sans">
             <span
               class="bg-linear-to-r from-indigo-500 to-purple-600 text-white w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.3)]"
             >
@@ -305,8 +305,8 @@ export class AudioSettingsPanel extends LitElement {
                       ?disabled="${this.isConverting}"
                       class="py-2.5 rounded-xl border text-xs font-bold transition-all font-sans cursor-pointer active:scale-95 ${this.bitrate ===
                       rate
-                        ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                        : "bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10 hover:text-slate-300"}"
+                        ? "bg-brand-bg border-brand-primary text-brand-text shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+                        : "bg-slate-950 border-slate-800 text-slate-400 hover:border-brand-primary/40 hover:text-slate-200"}"
                     >
                       ${rate} kbps
                       ${rate === 192
@@ -325,7 +325,7 @@ export class AudioSettingsPanel extends LitElement {
               <p class="text-xs text-slate-500 mt-2 font-medium tracking-wide leading-relaxed">${activeT.bitrateDesc}</p>
             </div>
 
-            <div class="border-t border-white/5 my-4"></div>
+            <div class="border-t border-slate-800 my-4"></div>
 
             <!-- Output Folder settings -->
             <div>
@@ -337,9 +337,9 @@ export class AudioSettingsPanel extends LitElement {
                       ${this.outputDirHandle
                         ? html`
                             <div
-                              class="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl text-xs flex items-center justify-between shadow-inner"
+                              class="p-3 bg-brand-bg border border-brand-border rounded-xl text-xs flex items-center justify-between shadow-inner"
                             >
-                              <div class="flex items-center gap-2 text-indigo-300 font-medium">
+                              <div class="flex items-center gap-2 text-brand-text font-medium">
                                 <i class="fa-regular fa-folder-open text-sm"></i>
                                 <span class="font-bold truncate max-w-50" title="${this.outputDirHandle.name}"> ${this.outputDirHandle.name} </span>
                               </div>
@@ -356,16 +356,16 @@ export class AudioSettingsPanel extends LitElement {
                             <button
                               @click="${this.handleSelectOutputFolder}"
                               ?disabled="${this.isConverting}"
-                              class="w-full py-3.5 px-4 bg-slate-950/40 hover:bg-slate-900/50 text-slate-300 rounded-xl border border-dashed border-white/5 hover:border-indigo-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer font-sans text-xs active:scale-[0.98]"
+                              class="w-full py-3.5 px-4 bg-slate-950 hover:bg-slate-900 text-slate-300 rounded-xl border border-dashed border-slate-800 hover:border-brand-primary/30 transition-all flex items-center justify-center gap-2 cursor-pointer font-sans text-xs active:scale-[0.98]"
                             >
-                              <i class="fa-regular fa-folder-open text-base text-indigo-400"></i>
+                              <i class="fa-regular fa-folder-open text-base text-brand-primary"></i>
                               <span class="font-semibold">${activeT.selectOutputDir}</span>
                             </button>
                           `}
                     </div>
                   `
                 : html`
-                    <div class="p-3 bg-slate-950/40 rounded-xl border border-white/5 text-xs text-slate-500 font-sans leading-relaxed shadow-inner">
+                    <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-500 font-sans leading-relaxed shadow-inner">
                       <i class="fa-solid fa-circle-info text-amber-500/80 mr-1"></i>
                       ${activeT.noOutputDirCompat}
                     </div>
@@ -373,20 +373,20 @@ export class AudioSettingsPanel extends LitElement {
               <p class="text-xs text-slate-500 mt-2 font-medium tracking-wide leading-relaxed">${activeT.outputDirDesc}</p>
             </div>
 
-            <div class="border-t border-white/5 my-4"></div>
+            <div class="border-t border-slate-800 my-4"></div>
 
             <!-- Option: Delete Original WAV -->
-            <div class="bg-slate-950/40 p-4.5 rounded-2xl border border-white/5 shadow-inner">
+            <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 shadow-inner">
               <label class="flex items-start gap-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   ?checked="${this.deleteOriginal}"
                   ?disabled="${this.isConverting}"
                   @change="${this.handleToggleDelete}"
-                  class="w-5 h-5 rounded-lg text-indigo-600 bg-slate-950 border-white/5 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer mt-0.5"
+                  class="w-5 h-5 rounded-lg text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer mt-0.5"
                 />
                 <div class="text-sm">
-                  <span class="font-bold text-slate-200 block"> ${activeT.deleteOriginalLabel} </span>
+                  <span class="font-bold text-slate-100 block"> ${activeT.deleteOriginalLabel} </span>
                   <span class="text-slate-500 block mt-1 font-sans leading-relaxed"> ${activeT.deleteOriginalDesc} </span>
                 </div>
               </label>

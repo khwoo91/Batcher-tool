@@ -5,6 +5,7 @@ import { customElement, property, state } from "lit/decorators.js";
 export class AppHeader extends LitElement {
   @property({ type: String }) lang: "ko" | "en" = "ko";
   @state() private dropdownOpen = false;
+  @state() private isDark = true;
 
   protected override createRenderRoot() {
     return this;
@@ -28,6 +29,34 @@ export class AppHeader extends LitElement {
     super.disconnectedCallback();
   }
 
+  override firstUpdated() {
+    const savedTheme = localStorage.getItem("batcher-theme");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldBeDark = savedTheme === "dark" || (savedTheme === null && systemPrefersDark);
+    
+    this.isDark = shouldBeDark;
+    if (shouldBeDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+  }
+
+  private toggleTheme() {
+    this.isDark = !this.isDark;
+    if (this.isDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      localStorage.setItem("batcher-theme", "dark");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("batcher-theme", "light");
+    }
+  }
+
   private selectLanguage(lang: "ko" | "en") {
     this.dropdownOpen = false;
     this.dispatchEvent(
@@ -43,7 +72,7 @@ export class AppHeader extends LitElement {
     const desc = this.lang === "ko" ? "쉽고 빠른 파일 일괄 변환 툴" : "Easy and Fast File Batch Converter";
 
     return html`
-      <header class="flex flex-col md:flex-row items-center justify-between border-b border-white/5 pb-6 mb-8 gap-4">
+      <header class="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-6 mb-8 gap-4">
         <div class="flex items-center gap-3">
           <div class="flex items-center justify-center w-14 h-14 animate-logo-float">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="w-full h-full">
@@ -126,7 +155,7 @@ export class AppHeader extends LitElement {
           </div>
           <div>
             <h1
-              class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-indigo-200 flex items-center gap-2 font-sans"
+              class="text-xl font-extrabold tracking-tight text-slate-100 flex items-center gap-2 font-sans"
             >
               배처(Batcher)
             </h1>
@@ -135,11 +164,22 @@ export class AppHeader extends LitElement {
         </div>
 
         <div class="flex items-center gap-3 self-end md:self-center">
+          <!-- Theme Toggle Switch -->
+          <button
+            @click="${this.toggleTheme}"
+            class="flex items-center justify-center w-10 h-10 bg-slate-950 border border-slate-800 hover:border-brand-primary/30 hover:bg-slate-900 text-slate-400 hover:text-brand-primary rounded-xl cursor-pointer focus:outline-none transition-all shadow-sm active:scale-95"
+            title="${this.lang === 'ko' ? '테마 변경' : 'Change Theme'}"
+          >
+            ${this.isDark 
+              ? html`<i class="fa-solid fa-moon text-xs"></i>` 
+              : html`<i class="fa-regular fa-sun text-sm"></i>`}
+          </button>
+
           <!-- Language Selector dropdown -->
           <div class="relative inline-block text-left w-32.5 custom-dropdown-container">
             <button
               @click="${() => (this.dropdownOpen = !this.dropdownOpen)}"
-              class="flex items-center justify-start w-full pl-9 pr-8 py-2.5 bg-slate-950/60 backdrop-blur-xl border border-white/5 hover:border-indigo-500/30 hover:bg-slate-900/60 text-slate-200 rounded-xl text-xs cursor-pointer focus:outline-none transition-all font-sans font-medium shadow-sm hover:shadow-[0_0_15px_rgba(99,102,241,0.1)] focus:border-indigo-500 select-none relative"
+              class="flex items-center justify-start w-full pl-9 pr-8 py-2.5 bg-slate-950 border border-slate-800 hover:border-brand-primary/30 hover:bg-slate-900 text-slate-200 rounded-xl text-xs cursor-pointer focus:outline-none transition-all font-sans font-medium shadow-sm hover:shadow-[0_0_15px_rgba(99,102,241,0.1)] focus:border-brand-primary select-none relative"
             >
               <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                 <i class="fa-solid fa-globe text-xs"></i>
@@ -154,30 +194,30 @@ export class AppHeader extends LitElement {
             ${this.dropdownOpen
               ? html`
                   <div
-                    class="absolute right-0 mt-2 w-full bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-50 py-1.5 focus:outline-none animate-fade-in font-sans"
+                    class="absolute right-0 mt-2 w-full bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-50 py-1.5 focus:outline-none animate-fade-in font-sans"
                   >
                     <button
                       @click="${() => this.selectLanguage("ko")}"
                       class="w-full pl-5 pr-3 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${this
                         .lang === "ko"
-                        ? "text-indigo-400 bg-indigo-500/5"
-                        : "text-slate-300 hover:bg-slate-800/40 hover:text-white"}"
+                        ? "text-brand-text bg-brand-bg"
+                        : "text-slate-400 hover:bg-brand-bg hover:text-brand-text"}"
                     >
                       <span>한국어</span>
                       <div class="w-3.5 flex items-center justify-center shrink-0">
-                        ${this.lang === "ko" ? html`<i class="fa-solid fa-check text-indigo-400 text-xs"></i>` : ""}
+                        ${this.lang === "ko" ? html`<i class="fa-solid fa-check text-brand-primary text-xs"></i>` : ""}
                       </div>
                     </button>
                     <button
                       @click="${() => this.selectLanguage("en")}"
                       class="w-full pl-5 pr-3 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${this
                         .lang === "en"
-                        ? "text-indigo-400 bg-indigo-500/5"
-                        : "text-slate-300 hover:bg-slate-800/40 hover:text-white"}"
+                        ? "text-brand-text bg-brand-bg"
+                        : "text-slate-400 hover:bg-brand-bg hover:text-brand-text"}"
                     >
                       <span>English</span>
                       <div class="w-3.5 flex items-center justify-center shrink-0">
-                        ${this.lang === "en" ? html`<i class="fa-solid fa-check text-indigo-400 text-xs"></i>` : ""}
+                        ${this.lang === "en" ? html`<i class="fa-solid fa-check text-brand-primary text-xs"></i>` : ""}
                       </div>
                     </button>
                   </div>
