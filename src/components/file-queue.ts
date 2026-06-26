@@ -264,7 +264,7 @@ export class FileQueue extends LitElement {
                 <button
                   @click="${this.handleDeleteSelectedFromQueue}"
                   ?disabled="${this.isConverting}"
-                  class="px-3 py-1.5 bg-rose-600/10 dark:bg-rose-600/20 hover:bg-rose-600 hover:text-white border border-rose-500/20 hover:border-rose-500 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95 shadow-[0_0_10px_rgba(244,63,94,0.05)]"
+                  class="px-3 py-1.5 hover:bg-rose-600 hover:text-white border border-rose-500/20 hover:border-rose-500 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:scale-95"
                 >
                   <i class="fa-regular fa-trash-can text-[10px]"></i>
                   <span>${this.lang === "ko" ? "선택 삭제" : "Delete Selected"}</span>
