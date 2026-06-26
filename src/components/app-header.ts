@@ -166,7 +166,9 @@ export class AppHeader extends LitElement {
             class="flex items-center justify-center w-10 h-10 bg-slate-950 border border-slate-800 hover:border-brand-primary/30 hover:bg-slate-900 text-slate-400 hover:text-brand-primary rounded-xl cursor-pointer focus:outline-none transition-all shadow-sm active:scale-95"
             title="${this.lang === "ko" ? "테마 변경" : "Change Theme"}"
           >
-            ${this.isDark ? html`<i class="fa-solid fa-moon text-xs"></i>` : html`<i class="fa-regular fa-sun"></i> `}
+            ${this.isDark
+              ? html`<i class="fa-solid fa-circle-half-stroke text-white"></i>`
+              : html`<i class="fa-solid fa-circle-half-stroke text-gray-700"></i>`}
           </button>
 
           <!-- Language Selector dropdown -->
