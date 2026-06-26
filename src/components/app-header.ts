@@ -69,7 +69,7 @@ export class AppHeader extends LitElement {
   }
 
   protected override render() {
-    const desc = this.lang === "ko" ? "쉽고 빠른 파일 일괄 변환 툴" : "Easy and Fast File Batch Converter";
+    const desc = this.lang === "ko" ? "쉽고 빠른 파일 변환 툴" : "Easy and Fast File Converter";
 
     return html`
       <header class="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-6 mb-8 gap-4">
@@ -154,7 +154,7 @@ export class AppHeader extends LitElement {
             </svg>
           </div>
           <div>
-            <h1 class="text-xl font-extrabold tracking-tight text-slate-100 flex items-center gap-2 font-sans">배처(Batcher)</h1>
+            <h1 class="text-xl font-extrabold tracking-tight text-slate-100 flex items-center gap-2 font-sans">배처 툴(Batcher Tools)</h1>
             <p class="text-xs text-slate-400 font-medium tracking-wide">${desc}</p>
           </div>
         </div>
