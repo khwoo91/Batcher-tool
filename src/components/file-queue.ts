@@ -35,15 +35,10 @@ export class FileQueue extends LitElement {
   private handleDragLeave(e: DragEvent) {
     e.preventDefault();
     if (this.isConverting) return;
-    
+
     // Only turn off if actually leaving the component area
     const rect = this.getBoundingClientRect();
-    if (
-      e.clientX < rect.left ||
-      e.clientX >= rect.right ||
-      e.clientY < rect.top ||
-      e.clientY >= rect.bottom
-    ) {
+    if (e.clientX < rect.left || e.clientX >= rect.right || e.clientY < rect.top || e.clientY >= rect.bottom) {
       this.isDragging = false;
     }
   }
@@ -60,7 +55,7 @@ export class FileQueue extends LitElement {
           detail: files,
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     }
   }
@@ -70,7 +65,7 @@ export class FileQueue extends LitElement {
       new CustomEvent("load-sample", {
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
@@ -90,7 +85,7 @@ export class FileQueue extends LitElement {
 
   private handleGlobalKeyDown = (e: KeyboardEvent) => {
     if (this.isConverting) return;
-    
+
     // Ignore keypresses if user is currently typing in input/textarea/editable elements
     const activeEl = document.activeElement;
     if (
@@ -98,13 +93,13 @@ export class FileQueue extends LitElement {
       (activeEl.tagName === "INPUT" ||
         activeEl.tagName === "SELECT" ||
         activeEl.tagName === "TEXTAREA" ||
-        activeEl.isContentEditable)
+        (activeEl instanceof HTMLElement && activeEl.isContentEditable))
     ) {
       return;
     }
 
     if (e.key === "Delete" || e.key === "Backspace") {
-      const selectedFiles = this.files.filter(f => f.selected);
+      const selectedFiles = this.files.filter((f) => f.selected);
       if (selectedFiles.length > 0) {
         e.preventDefault();
         this.dispatchEvent(
@@ -112,7 +107,7 @@ export class FileQueue extends LitElement {
             detail: selectedFiles,
             bubbles: true,
             composed: true,
-          })
+          }),
         );
       }
     }
@@ -125,7 +120,7 @@ export class FileQueue extends LitElement {
         detail: file,
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
@@ -136,7 +131,7 @@ export class FileQueue extends LitElement {
         detail: target.checked,
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
@@ -147,20 +142,20 @@ export class FileQueue extends LitElement {
         detail: file,
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
   private handleDeleteSelectedFromQueue() {
     if (this.isConverting) return;
-    const selectedFiles = this.files.filter(f => f.selected);
+    const selectedFiles = this.files.filter((f) => f.selected);
     if (selectedFiles.length > 0) {
       this.dispatchEvent(
         new CustomEvent("delete-selected-from-queue", {
           detail: selectedFiles,
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     }
   }
@@ -174,7 +169,7 @@ export class FileQueue extends LitElement {
           detail: file,
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     }
   }
@@ -208,7 +203,7 @@ export class FileQueue extends LitElement {
         detail: { relativePath, newName: input.value },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
@@ -223,8 +218,8 @@ export class FileQueue extends LitElement {
 
   protected override render() {
     const activeT = t[this.lang];
-    const allSelected = this.files.length > 0 && this.files.every(f => f.selected);
-    const someSelected = this.files.length > 0 && this.files.some(f => f.selected) && !allSelected;
+    const allSelected = this.files.length > 0 && this.files.every((f) => f.selected);
+    const someSelected = this.files.length > 0 && this.files.some((f) => f.selected) && !allSelected;
 
     return html`
       <div
@@ -237,7 +232,9 @@ export class FileQueue extends LitElement {
         <!-- Drag Over Overlay -->
         ${this.isDragging
           ? html`
-              <div class="absolute inset-0 bg-indigo-950/85 backdrop-blur-md border-2 border-dashed border-indigo-500 rounded-3xl flex flex-col items-center justify-center text-indigo-300 z-30 transition-all duration-300">
+              <div
+                class="absolute inset-0 bg-indigo-950/85 backdrop-blur-md border-2 border-dashed border-indigo-500 rounded-3xl flex flex-col items-center justify-center text-indigo-300 z-30 transition-all duration-300"
+              >
                 <i class="fa-solid fa-cloud-arrow-up text-4xl mb-3 animate-bounce"></i>
                 <span class="text-sm font-bold text-center px-4">${activeT.dragOverActive(this.activeTab === "svg")}</span>
               </div>
@@ -254,14 +251,15 @@ export class FileQueue extends LitElement {
                 ?disabled="${this.isConverting || this.files.length === 0}"
                 @change="${this.handleToggleAll}"
                 class="w-4.5 h-4.5 rounded text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                title="${activeT.selectAll}"/>
+                title="${activeT.selectAll}"
+              />
             </div>
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-list-ul text-brand-primary text-sm"></i>
               <span class="text-sm font-bold text-slate-100 font-sans tracking-wide">${activeT.fileList(this.files.length)}</span>
             </div>
           </div>
-          ${this.files.some(f => f.selected)
+          ${this.files.some((f) => f.selected)
             ? html`
                 <button
                   @click="${this.handleDeleteSelectedFromQueue}"
@@ -278,23 +276,18 @@ export class FileQueue extends LitElement {
         <div class="flex-1 overflow-y-auto pr-1">
           ${this.files.length === 0
             ? html`
-                <div
-                  class="h-full flex flex-col items-center justify-center text-slate-500 space-y-3 py-10 text-center px-4"
-                >
+                <div class="h-full flex flex-col items-center justify-center text-slate-500 space-y-3 py-10 text-center px-4">
                   <i class="fa-solid fa-folder-open text-4xl text-slate-700"></i>
-                  <p class="text-xs font-semibold tracking-wide leading-relaxed">
-                    ${activeT.emptyQueue}
-                  </p>
+                  <p class="text-xs font-semibold tracking-wide leading-relaxed">${activeT.emptyQueue}</p>
                   <button
                     @click="${this.handleLoadSample}"
                     ?disabled="${this.isConverting}"
                     class="px-4.5 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer mt-2 flex items-center justify-center gap-1.5 hover:opacity-95
-                      ${this.activeTab === 'rename'
-                        ? 'bg-pink-600 hover:bg-pink-700'
-                        : this.activeTab === 'audio'
-                        ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-indigo-600 hover:bg-indigo-700'
-                      }"
+                      ${this.activeTab === "rename"
+                      ? "bg-pink-600 hover:bg-pink-700"
+                      : this.activeTab === "audio"
+                        ? "bg-purple-600 hover:bg-purple-700"
+                        : "bg-indigo-600 hover:bg-indigo-700"}"
                   >
                     <i class="fa-solid fa-wand-magic-sparkles text-[10px] animate-pulse"></i>
                     <span>${activeT.trySampleEmpty}</span>
@@ -302,114 +295,133 @@ export class FileQueue extends LitElement {
                 </div>
               `
             : this.activeTab === "rename"
-            ? html`
-                <!-- Rename Mode Table View -->
-                <div class="overflow-x-auto w-full">
-                  <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr class="border-b border-slate-800 pb-2">
-                        <th class="py-2 pl-2 w-8"></th>
-                        <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">${this.lang === "ko" ? "현재 파일명" : "Current Name"}</th>
-                        <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">${this.lang === "ko" ? "변경할 파일명" : "New Name"}</th>
-                        <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider text-right pr-2">${this.lang === "ko" ? "상태" : "Status"}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${this.files.map((file) => {
-                        const newName = file.newName || file.name;
-                        const isChanged = newName !== file.name;
-                        return html`
-                          <tr class="hover:bg-slate-900/40 border-b border-slate-800 transition-all group/row">
-                            <td class="py-3 pl-2">
-                              <input
-                                type="checkbox"
-                                .checked="${file.selected ?? false}"
-                                ?disabled="${this.isConverting}"
-                                @change="${(e: Event) => this.handleToggleFile(file, e)}"
-                                class="w-4.5 h-4.5 rounded text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                              />
-                            </td>
-                            <td class="py-3 pr-4 text-slate-400 max-w-[150px] truncate font-medium font-sans" title="${file.relativePath}">
-                              ${file.name}
-                            </td>
-                            <td class="py-3 pr-4 max-w-[200px] truncate font-sans">
-                              ${this.editingPath === file.relativePath
-                                ? html`
-                                    <input
-                                      type="text"
-                                      .value="${newName}"
-                                      class="rename-input bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-primary w-full"
-                                      @blur="${(e: Event) => this.handleFinishEdit(file.relativePath, e)}"
-                                      @keydown="${this.handleInputKeyDown}"
-                                    />
-                                  `
-                                : html`
-                                    <span
-                                      @dblclick="${(e: Event) => this.handleStartEdit(file.relativePath, e)}"
-                                      class="cursor-pointer ${isChanged ? 'text-success-text font-bold' : 'text-slate-100'} select-none flex items-center gap-1.5"
-                                      title="${this.lang === "ko" ? "더블클릭하여 직접 변경" : "Double click to edit"}"
-                                    >
-                                      ${newName}
-                                      <i class="fa-solid fa-pen text-[9px] text-slate-600 opacity-0 group-hover/row:opacity-100 transition-opacity"></i>
-                                    </span>
-                                  `}
-                            </td>
-                            <td class="py-3 pr-2 text-right">
-                              <div class="flex items-center justify-end gap-2">
-                                <div>
-                                  ${file.status === "pending"
-                                    ? html`<span class="px-2 py-0.5 border border-slate-800 bg-slate-950 text-slate-500 rounded-full text-[10px] font-bold tracking-wide">${activeT.statusPending}</span>`
-                                    : ""}
-                                  ${file.status === "processing"
-                                    ? html`<span class="px-2 py-0.5 bg-brand-bg text-brand-text border border-brand-border rounded-full text-[10px] font-bold tracking-wide animate-pulse">${activeT.statusProcessing}</span>`
-                                    : ""}
-                                  ${file.status === "success"
-                                    ? html`
-                                        <span class="px-2 py-0.5 bg-success-bg text-success-text border border-success-border rounded-full text-[10px] font-bold tracking-wide inline-flex items-center gap-0.5">
+              ? html`
+                  <!-- Rename Mode Table View -->
+                  <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr class="border-b border-slate-800 pb-2">
+                          <th class="py-2 pl-2 w-8"></th>
+                          <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            ${this.lang === "ko" ? "현재 파일명" : "Current Name"}
+                          </th>
+                          <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            ${this.lang === "ko" ? "변경할 파일명" : "New Name"}
+                          </th>
+                          <th class="py-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider text-right pr-2">
+                            ${this.lang === "ko" ? "상태" : "Status"}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${this.files.map((file) => {
+                          const newName = file.newName || file.name;
+                          const isChanged = newName !== file.name;
+                          return html`
+                            <tr class="hover:bg-slate-900/40 border-b border-slate-800 transition-all group/row">
+                              <td class="py-3 pl-2">
+                                <input
+                                  type="checkbox"
+                                  .checked="${file.selected ?? false}"
+                                  ?disabled="${this.isConverting}"
+                                  @change="${(e: Event) => this.handleToggleFile(file, e)}"
+                                  class="w-4.5 h-4.5 rounded text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                />
+                              </td>
+                              <td class="py-3 pr-4 text-slate-400 max-w-[150px] truncate font-medium font-sans" title="${file.relativePath}">
+                                ${file.name}
+                              </td>
+                              <td class="py-3 pr-4 max-w-[200px] truncate font-sans">
+                                ${this.editingPath === file.relativePath
+                                  ? html`
+                                      <input
+                                        type="text"
+                                        .value="${newName}"
+                                        class="rename-input bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-primary w-full"
+                                        @blur="${(e: Event) => this.handleFinishEdit(file.relativePath, e)}"
+                                        @keydown="${this.handleInputKeyDown}"
+                                      />
+                                    `
+                                  : html`
+                                      <span
+                                        @dblclick="${(e: Event) => this.handleStartEdit(file.relativePath, e)}"
+                                        class="cursor-pointer ${isChanged
+                                          ? "text-success-text font-bold"
+                                          : "text-slate-100"} select-none flex items-center gap-1.5"
+                                        title="${this.lang === "ko" ? "더블클릭하여 직접 변경" : "Double click to edit"}"
+                                      >
+                                        ${newName}
+                                        <i
+                                          class="fa-solid fa-pen text-[9px] text-slate-600 opacity-0 group-hover/row:opacity-100 transition-opacity"
+                                        ></i>
+                                      </span>
+                                    `}
+                              </td>
+                              <td class="py-3 pr-2 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                  <div>
+                                    ${file.status === "pending"
+                                      ? html`<span
+                                          class="px-2 py-0.5 border border-slate-800 bg-slate-950 text-slate-500 rounded-full text-[10px] font-bold tracking-wide"
+                                          >${activeT.statusPending}</span
+                                        >`
+                                      : ""}
+                                    ${file.status === "processing"
+                                      ? html`<span
+                                          class="px-2 py-0.5 bg-brand-bg text-brand-text border border-brand-border rounded-full text-[10px] font-bold tracking-wide animate-pulse"
+                                          >${activeT.statusProcessing}</span
+                                        >`
+                                      : ""}
+                                    ${file.status === "success"
+                                      ? html` <span
+                                          class="px-2 py-0.5 bg-success-bg text-success-text border border-success-border rounded-full text-[10px] font-bold tracking-wide inline-flex items-center gap-0.5"
+                                        >
                                           <i class="fa-solid fa-check text-[9px]"></i> ${activeT.statusSuccess}
                                         </span>`
-                                    : ""}
-                                  ${file.status === "error"
-                                    ? html`
-                                        <span class="px-2 py-0.5 bg-warning-bg text-warning-text border border-warning-border rounded-full text-[10px] font-bold tracking-wide inline-flex items-center gap-0.5" title="${file.errorMsg || ""}">
+                                      : ""}
+                                    ${file.status === "error"
+                                      ? html` <span
+                                          class="px-2 py-0.5 bg-warning-bg text-warning-text border border-warning-border rounded-full text-[10px] font-bold tracking-wide inline-flex items-center gap-0.5"
+                                          title="${file.errorMsg || ""}"
+                                        >
                                           <i class="fa-solid fa-exclamation text-[9px]"></i> ${activeT.statusError}
                                         </span>`
-                                    : ""}
+                                      : ""}
+                                  </div>
+                                  <button
+                                    @click="${(e: Event) => this.handleDeleteFile(file, e)}"
+                                    ?disabled="${this.isConverting}"
+                                    class="text-slate-500 hover:text-rose-400 disabled:opacity-20 transition-all p-1 opacity-0 group-hover/row:opacity-100 cursor-pointer"
+                                    title="${activeT.deleteTooltip}"
+                                  >
+                                    <i class="fa-regular fa-trash-can text-[11px]"></i>
+                                  </button>
                                 </div>
-                                <button
-                                  @click="${(e: Event) => this.handleDeleteFile(file, e)}"
-                                  ?disabled="${this.isConverting}"
-                                  class="text-slate-500 hover:text-rose-400 disabled:opacity-20 transition-all p-1 opacity-0 group-hover/row:opacity-100 cursor-pointer"
-                                  title="${activeT.deleteTooltip}"
-                                >
-                                  <i class="fa-regular fa-trash-can text-[11px]"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        `;
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              `
-            : html`
-                <!-- List View (SVG / Audio) -->
-                <div class="space-y-2">
-                  ${this.files.map(
-                    (file) => {
+                              </td>
+                            </tr>
+                          `;
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                `
+              : html`
+                  <!-- List View (SVG / Audio) -->
+                  <div class="space-y-2">
+                    ${this.files.map((file) => {
                       const isAudio = file.name.toLowerCase().endsWith(".wav") || file.name.toLowerCase().endsWith(".mp3");
                       const iconClass = isAudio
-                        ? `fa-solid fa-music ${file.selected ? 'text-purple-primary' : 'text-slate-500'}`
-                        : `fa-regular fa-file-image ${file.selected ? 'text-brand-primary' : 'text-slate-500'}`;
+                        ? `fa-solid fa-music ${file.selected ? "text-purple-primary" : "text-slate-500"}`
+                        : `fa-regular fa-file-image ${file.selected ? "text-brand-primary" : "text-slate-500"}`;
 
                       return html`
                         <div
                           class="flex items-center justify-between p-3 bg-slate-950 border border-slate-800 hover:border-brand-primary/40 focus-within:border-brand-primary/50 transition-all text-xs group/item outline-none cursor-pointer rounded-xl animate-fade-in"
                           tabindex="0"
-                          @keydown="${(e: KeyboardEvent) => this.handleKeyDown(file, e)}">
+                          @keydown="${(e: KeyboardEvent) => this.handleKeyDown(file, e)}"
+                        >
                           <div class="flex items-center gap-3 min-w-0 font-sans flex-1">
-                             <!-- Checkbox -->
+                            <!-- Checkbox -->
                             <div class="flex items-center justify-center shrink-0">
                               <input
                                 type="checkbox"
@@ -423,7 +435,12 @@ export class FileQueue extends LitElement {
 
                             <i class="${iconClass} text-lg shrink-0 transition-colors"></i>
                             <div class="min-w-0 flex-1">
-                              <p class="font-bold ${file.selected ? 'text-slate-100' : 'text-slate-500 line-through decoration-slate-700'} truncate" title="${file.relativePath}">${file.name}</p>
+                              <p
+                                class="font-bold ${file.selected ? "text-slate-100" : "text-slate-500 line-through decoration-slate-700"} truncate"
+                                title="${file.relativePath}"
+                              >
+                                ${file.name}
+                              </p>
                               <p class="text-xs text-slate-500 font-mono mt-0.5">${this.formatSize(file.file.size)}</p>
                             </div>
                           </div>
@@ -432,22 +449,33 @@ export class FileQueue extends LitElement {
                             <!-- Status Badge -->
                             <div>
                               ${file.status === "pending"
-                                ? html`<span class="px-2.5 py-0.5 ${file.selected ? 'bg-slate-900/80 text-slate-400 border-slate-800' : 'bg-slate-950/80 text-slate-600 border-slate-800'} border rounded-full text-[11px] font-bold tracking-wide transition-colors">${activeT.statusPending}</span>`
+                                ? html`<span
+                                    class="px-2.5 py-0.5 ${file.selected
+                                      ? "bg-slate-900/80 text-slate-400 border-slate-800"
+                                      : "bg-slate-950/80 text-slate-600 border-slate-800"} border rounded-full text-[11px] font-bold tracking-wide transition-colors"
+                                    >${activeT.statusPending}</span
+                                  >`
                                 : ""}
                               ${file.status === "processing"
-                                ? html`<span class="px-2.5 py-0.5 bg-brand-bg text-brand-text border border-brand-border rounded-full text-[11px] font-bold tracking-wide animate-pulse">${activeT.statusProcessing}</span>`
+                                ? html`<span
+                                    class="px-2.5 py-0.5 bg-brand-bg text-brand-text border border-brand-border rounded-full text-[11px] font-bold tracking-wide animate-pulse"
+                                    >${activeT.statusProcessing}</span
+                                  >`
                                 : ""}
                               ${file.status === "success"
-                                ? html`
-                                    <span class="px-2.5 py-0.5 bg-success-bg text-success-text border border-success-border rounded-full text-[11px] font-bold tracking-wide flex items-center gap-1 font-sans shadow-[0_0_10px_rgba(16,185,129,0.1)]">
-                                      <i class="fa-solid fa-check text-[11px]"></i> ${activeT.statusSuccess}
-                                    </span>`
+                                ? html` <span
+                                    class="px-2.5 py-0.5 bg-success-bg text-success-text border border-success-border rounded-full text-[11px] font-bold tracking-wide flex items-center gap-1 font-sans shadow-[0_0_10px_rgba(16,185,129,0.1)]"
+                                  >
+                                    <i class="fa-solid fa-check text-[11px]"></i> ${activeT.statusSuccess}
+                                  </span>`
                                 : ""}
                               ${file.status === "error"
-                                ? html`
-                                    <span class="px-2.5 py-0.5 bg-warning-bg text-warning-text border border-warning-border rounded-full text-[11px] font-bold tracking-wide flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.1)]" title="${file.errorMsg || ""}">
-                                      <i class="fa-solid fa-exclamation text-[11px]"></i> ${activeT.statusError}
-                                    </span>`
+                                ? html` <span
+                                    class="px-2.5 py-0.5 bg-warning-bg text-warning-text border border-warning-border rounded-full text-[11px] font-bold tracking-wide flex items-center gap-1 shadow-[0_0_10px_rgba(244,63,94,0.1)]"
+                                    title="${file.errorMsg || ""}"
+                                  >
+                                    <i class="fa-solid fa-exclamation text-[11px]"></i> ${activeT.statusError}
+                                  </span>`
                                 : ""}
                             </div>
 
@@ -456,16 +484,16 @@ export class FileQueue extends LitElement {
                               @click="${(e: Event) => this.handleDeleteFile(file, e)}"
                               ?disabled="${this.isConverting}"
                               class="text-slate-500 hover:text-rose-400 disabled:opacity-20 disabled:hover:text-slate-500 transition-all p-1 md:opacity-0 group-hover/item:opacity-100 focus:opacity-100 outline-none cursor-pointer animate-fade-in"
-                              title="${activeT.deleteTooltip}">
+                              title="${activeT.deleteTooltip}"
+                            >
                               <i class="fa-regular fa-trash-can text-xs"></i>
                             </button>
                           </div>
                         </div>
                       `;
-                    }
-                  )}
-                </div>
-              `}
+                    })}
+                  </div>
+                `}
         </div>
       </div>
     `;
@@ -477,4 +505,3 @@ declare global {
     "file-queue": FileQueue;
   }
 }
-
