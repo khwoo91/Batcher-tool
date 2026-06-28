@@ -328,10 +328,10 @@ export class FileQueue extends LitElement {
                                   class="w-4.5 h-4.5 rounded text-indigo-600 bg-slate-950 border-slate-800 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                                 />
                               </td>
-                              <td class="py-3 pr-4 text-slate-400 max-w-[150px] truncate font-medium font-sans" title="${file.relativePath}">
+                              <td class="py-3 pr-4 text-slate-400 max-w-37.5 truncate font-medium font-sans" title="${file.relativePath}">
                                 ${file.name}
                               </td>
-                              <td class="py-3 pr-4 max-w-[200px] truncate font-sans">
+                              <td class="py-3 pr-4 max-w-50 truncate font-sans">
                                 ${this.editingPath === file.relativePath
                                   ? html`
                                       <input

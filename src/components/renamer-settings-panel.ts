@@ -384,7 +384,7 @@ export class RenamerSettingsPanel extends LitElement {
             </button>
           </h2>
 
-          <div class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+          <div class="space-y-4 max-h-125 overflow-y-auto pr-1">
             <!-- 1. 문자열 바꾸기 -->
             <details class="group p-4 bg-slate-950 border border-slate-800 rounded-2xl [&_summary::-webkit-details-marker]:hidden">
               <summary class="text-xs font-bold text-slate-300 flex items-center justify-between cursor-pointer list-none focus:outline-none select-none hover:text-slate-100 transition-colors duration-200">
@@ -574,7 +574,7 @@ export class RenamerSettingsPanel extends LitElement {
                     <label class="text-[10px] text-slate-500 font-bold block">${activeT.numberingPosition}</label>
                     <select
                       id="num-position"
-                      class="w-full bg-slate-950 border border-slate-800 focus:border-purple-primary focus:ring-1 focus:ring-purple-primary/20 rounded-xl px-2 py-2 text-[11px] text-slate-100 focus:outline-none transition-all font-sans cursor-pointer h-[34px]"
+                      class="w-full bg-slate-950 border border-slate-800 focus:border-purple-primary focus:ring-1 focus:ring-purple-primary/20 rounded-xl px-2 py-2 text-[11px] text-slate-100 focus:outline-none transition-all font-sans cursor-pointer h-8.5"
                       ?disabled="${this.isConverting || this.filesCount === 0}"
                     >
                       <option value="suffix" selected>${activeT.posSuffix}</option>
@@ -607,7 +607,7 @@ export class RenamerSettingsPanel extends LitElement {
                     <label class="text-[10px] text-slate-500 font-bold block">${activeT.extMode}</label>
                     <select
                       @change="${(e: Event) => (this.extMode = (e.target as HTMLSelectElement).value as any)}"
-                      class="w-full bg-slate-950 border border-slate-800 focus:border-purple-primary focus:ring-1 focus:ring-purple-primary/20 rounded-xl px-2 py-2 text-[11px] text-slate-100 focus:outline-none transition-all font-sans cursor-pointer h-[34px]"
+                      class="w-full bg-slate-950 border border-slate-800 focus:border-purple-primary focus:ring-1 focus:ring-purple-primary/20 rounded-xl px-2 py-2 text-[11px] text-slate-100 focus:outline-none transition-all font-sans cursor-pointer h-8.5"
                       ?disabled="${this.isConverting || this.filesCount === 0}"
                     >
                       <option value="keep" selected>${activeT.extModeKeep}</option>
