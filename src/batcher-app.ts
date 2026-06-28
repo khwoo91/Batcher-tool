@@ -1342,7 +1342,7 @@ export class BatcherApp extends LitElement {
                   <button
                     @click="${this.resetAll}"
                     ?disabled="${this.isConverting}"
-                    class="flex-1 md:flex-initial w-full md:w-auto px-6 py-3 border border-black/15 dark:border-white/10 bg-black/[0.04] dark:bg-white/[0.04] hover:bg-black/[0.08] dark:hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-slate-100 rounded-xl text-xs transition-all flex items-center justify-center gap-2 font-sans cursor-pointer active:scale-95"
+                    class="flex-1 md:flex-initial w-full md:w-auto px-6 py-3 border border-black/15 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/4 dark:hover:bg-white/4 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 hover:text-slate-100 rounded-xl text-xs transition-all flex items-center justify-center gap-2 font-sans cursor-pointer active:scale-95"
                   >
                     <i class="fa-solid fa-rotate-left text-xs"></i>
                     <span>${this.currentLang === "ko" ? "초기화" : "Reset"}</span>
