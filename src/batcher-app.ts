@@ -9,6 +9,24 @@ import { batchConvertAudio } from "./services/audio-converter";
 import { batchRenameFiles, batchDeleteFiles } from "./services/file-renamer";
 import { locales } from "./locales";
 
+import {
+  applyReplace,
+  applyPrefix,
+  applySuffix,
+  applyRemove,
+  applyKeepNumbers,
+  applyRemoveBrackets,
+  applyNumbering,
+  applyExtension,
+  applyClearFilename,
+} from "./utils/rename-rules";
+
+import {
+  generateSampleSvgFile,
+  generateSampleWavFile,
+  generateSampleRenameFiles,
+} from "./utils/sample-generator";
+
 import "./components/app-header";
 import "./components/settings-panel";
 import "./components/audio-settings-panel";
@@ -69,6 +87,22 @@ export class BatcherApp extends LitElement {
 
   protected override createRenderRoot() {
     return this;
+  }
+
+  private get activeFiles(): BatchFile[] {
+    if (this.activeTab === "svg") return this.svgFiles;
+    if (this.activeTab === "audio") return this.audioFiles;
+    return this.renameFiles;
+  }
+
+  private set activeFiles(files: BatchFile[]) {
+    if (this.activeTab === "svg") {
+      this.svgFiles = files;
+    } else if (this.activeTab === "audio") {
+      this.audioFiles = files;
+    } else {
+      this.renameFiles = files;
+    }
   }
 
   private showAlert(
@@ -140,9 +174,53 @@ export class BatcherApp extends LitElement {
     if (!this.renameExtFilter.trim()) return ["*"];
     return this.renameExtFilter
       .split(",")
-      .map(ext => ext.trim().toLowerCase())
+      .map((ext) => ext.trim().toLowerCase())
       .filter(Boolean)
-      .map(ext => ext.startsWith(".") ? ext : `.${ext}`);
+      .map((ext) => (ext.startsWith(".") ? ext : `.${ext}`));
+  }
+
+  private getTabConfig() {
+    if (this.activeTab === "svg") {
+      return {
+        exts: ".svg",
+        outputDirHandle: this.svgOutputDirHandle,
+        setDirHandle: (h: FileSystemDirectoryHandle) => {
+          this.svgDirHandle = h;
+        },
+        setFiles: (fs: BatchFile[]) => {
+          this.svgFiles = fs;
+        },
+        noFilesMessage: t[this.currentLang].noSvgInFolder,
+      };
+    } else if (this.activeTab === "audio") {
+      return {
+        exts: this.audioInputExts,
+        outputDirHandle: this.audioOutputDirHandle,
+        setDirHandle: (h: FileSystemDirectoryHandle) => {
+          this.audioDirHandle = h;
+        },
+        setFiles: (fs: BatchFile[]) => {
+          this.audioFiles = fs;
+        },
+        noFilesMessage: t[this.currentLang].noWavInFolder,
+      };
+    } else {
+      return {
+        exts: this.getRenameExtensions(),
+        outputDirHandle: null,
+        setDirHandle: (h: FileSystemDirectoryHandle) => {
+          this.renameDirHandle = h;
+        },
+        setFiles: (fs: BatchFile[]) => {
+          this.renameFiles = fs.map((f) => ({
+            ...f,
+            originalName: f.name,
+            newName: f.name,
+          }));
+        },
+        noFilesMessage: t[this.currentLang].noRenameFiles,
+      };
+    }
   }
 
   private async selectFolder() {
@@ -156,47 +234,19 @@ export class BatcherApp extends LitElement {
         mode: "readwrite",
       });
 
+      const config = this.getTabConfig();
+      config.setDirHandle(handle);
+
       const files: BatchFile[] = [];
       this.conversionProgress = 0;
 
-      if (this.activeTab === "svg") {
-        this.svgDirHandle = handle;
-        this.svgFiles = [];
-        await scanDirectory(this.svgDirHandle, "", files, ".svg", this.svgOutputDirHandle);
-        this.svgFiles = files;
+      await scanDirectory(handle, "", files, config.exts, config.outputDirHandle);
+      config.setFiles(files);
 
-        if (this.svgFiles.length === 0) {
-          this.showAlert(t[this.currentLang].noSvgInFolder, "error");
-        } else {
-          this.addLog(t[this.currentLang].folderScanDone(this.svgFiles.length));
-        }
-      } else if (this.activeTab === "audio") {
-        this.audioDirHandle = handle;
-        this.audioFiles = [];
-        await scanDirectory(this.audioDirHandle, "", files, this.audioInputExts, this.audioOutputDirHandle);
-        this.audioFiles = files;
-
-        if (this.audioFiles.length === 0) {
-          this.showAlert(t[this.currentLang].noWavInFolder, "error");
-        } else {
-          this.addLog(t[this.currentLang].folderScanDone(this.audioFiles.length));
-        }
+      if (files.length === 0) {
+        this.showAlert(config.noFilesMessage, "error");
       } else {
-        this.renameDirHandle = handle;
-        this.renameFiles = [];
-        const exts = this.getRenameExtensions();
-        await scanDirectory(this.renameDirHandle, "", files, exts);
-        this.renameFiles = files.map(f => ({
-          ...f,
-          originalName: f.name,
-          newName: f.name
-        }));
-
-        if (this.renameFiles.length === 0) {
-          this.showAlert(t[this.currentLang].noRenameFiles, "error");
-        } else {
-          this.addLog(t[this.currentLang].folderScanDone(this.renameFiles.length));
-        }
+        this.addLog(t[this.currentLang].folderScanDone(files.length));
       }
     } catch (err: any) {
       if (err.name !== "AbortError") {
@@ -241,7 +291,8 @@ export class BatcherApp extends LitElement {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const hasMatchedExt = exts.includes("*") || exts.some(ext => file.name.toLowerCase().endsWith(ext));
+      const hasMatchedExt =
+        exts.includes("*") || exts.some((ext) => file.name.toLowerCase().endsWith(ext));
       if (hasMatchedExt) {
         newBatchFiles.push({
           name: file.name,
@@ -261,37 +312,26 @@ export class BatcherApp extends LitElement {
       } else if (isAudio) {
         this.showAlert(t[this.currentLang].noFallbackWav, "error");
       } else {
-        this.showAlert(this.currentLang === "ko" ? "선택한 확장자의 파일을 찾을 수 없습니다." : "No files matched the selected extensions.", "error");
+        this.showAlert(
+          this.currentLang === "ko"
+            ? "선택한 확장자의 파일을 찾을 수 없습니다."
+            : "No files matched the selected extensions.",
+          "error"
+        );
       }
       return;
     }
 
     const activeT = t[this.currentLang];
-
-    if (isSvg) {
-      const currentPaths = new Set(this.svgFiles.map((f) => f.relativePath));
-      const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
-      this.svgFiles = [...this.svgFiles, ...filteredNew];
-      const count = filteredNew.length;
-      if (count > 0) {
-        this.addLog(isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count), "success");
-      }
-    } else if (isAudio) {
-      const currentPaths = new Set(this.audioFiles.map((f) => f.relativePath));
-      const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
-      this.audioFiles = [...this.audioFiles, ...filteredNew];
-      const count = filteredNew.length;
-      if (count > 0) {
-        this.addLog(isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count), "success");
-      }
-    } else {
-      const currentPaths = new Set(this.renameFiles.map((f) => f.relativePath));
-      const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
-      this.renameFiles = [...this.renameFiles, ...filteredNew];
-      const count = filteredNew.length;
-      if (count > 0) {
-        this.addLog(isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count), "success");
-      }
+    const currentPaths = new Set(this.activeFiles.map((f) => f.relativePath));
+    const filteredNew = newBatchFiles.filter((f) => !currentPaths.has(f.relativePath));
+    this.activeFiles = [...this.activeFiles, ...filteredNew];
+    const count = filteredNew.length;
+    if (count > 0) {
+      this.addLog(
+        isDropped ? activeT.filesDropped(count) : activeT.fallbackUploadDone(count),
+        "success"
+      );
     }
   }
 
@@ -340,10 +380,10 @@ export class BatcherApp extends LitElement {
       const files: BatchFile[] = [];
       const exts = this.getRenameExtensions();
       await scanDirectory(this.renameDirHandle, "", files, exts);
-      this.renameFiles = files.map(f => ({
+      this.renameFiles = files.map((f) => ({
         ...f,
         originalName: f.name,
-        newName: f.name
+        newName: f.name,
       }));
       this.addLog(t[this.currentLang].folderScanDone(this.renameFiles.length));
     } catch (err: any) {
@@ -353,28 +393,10 @@ export class BatcherApp extends LitElement {
 
   private loadSampleFile() {
     this.conversionProgress = 0;
-    const isSvg = this.activeTab === "svg";
-    const isAudio = this.activeTab === "audio";
     const activeT = t[this.currentLang];
 
-    if (isSvg) {
-      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
-  <defs>
-    <linearGradient id="premiumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1" />
-      <stop offset="50%" stop-color="#a855f7" />
-      <stop offset="100%" stop-color="#ec4899" />
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#6366f1" flood-opacity="0.3" />
-    </filter>
-  </defs>
-  <rect width="100%" height="100%" fill="#090d1f" rx="32" />
-  <circle cx="200" cy="200" r="100" fill="url(#premiumGrad)" filter="url(#shadow)" />
-  <path d="M170 150 L250 200 L170 250 Z" fill="#ffffff" rx="4" />
-</svg>`;
-      const file = new File([svgString], "sample.svg", { type: "image/svg+xml" });
-      
+    if (this.activeTab === "svg") {
+      const file = generateSampleSvgFile();
       const sampleBatchFile: BatchFile = {
         name: file.name,
         file: file,
@@ -383,49 +405,14 @@ export class BatcherApp extends LitElement {
         selected: true,
       };
 
-      this.svgFiles = [sampleBatchFile, ...this.svgFiles.filter((f) => f.relativePath !== file.name)];
+      this.svgFiles = [
+        sampleBatchFile,
+        ...this.svgFiles.filter((f) => f.relativePath !== file.name),
+      ];
       this.addLog(activeT.sampleFileAdded("SVG"), "success");
       this.showAlert(activeT.sampleFileAdded("SVG"), "success");
-    } else if (isAudio) {
-      const sampleRate = 8000;
-      const duration = 1.0;
-      const numSamples = sampleRate * duration;
-      const buffer = new ArrayBuffer(44 + numSamples * 2);
-      const view = new DataView(buffer);
-
-      const writeString = (offset: number, str: string) => {
-        for (let i = 0; i < str.length; i++) {
-          view.setUint8(offset + i, str.charCodeAt(i));
-        }
-      };
-
-      writeString(0, 'RIFF');
-      view.setUint32(4, 36 + numSamples * 2, true);
-      writeString(8, 'WAVE');
-      writeString(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true); // Raw PCM
-      view.setUint16(22, 1, true); // Mono
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeString(36, 'data');
-      view.setUint32(40, numSamples * 2, true);
-
-      const frequency = 440;
-      let offset = 44;
-      for (let i = 0; i < numSamples; i++) {
-        const tVal = i / sampleRate;
-        const sampleVal = Math.sin(2 * Math.PI * frequency * tVal);
-        const intSample = Math.max(-32768, Math.min(32767, sampleVal * 32767));
-        view.setInt16(offset, intSample, true);
-        offset += 2;
-      }
-
-      const blob = new Blob([buffer], { type: 'audio/wav' });
-      const file = new File([blob], 'sample.wav', { type: 'audio/wav' });
-
+    } else if (this.activeTab === "audio") {
+      const file = generateSampleWavFile();
       const sampleBatchFile: BatchFile = {
         name: file.name,
         file: file,
@@ -434,32 +421,35 @@ export class BatcherApp extends LitElement {
         selected: true,
       };
 
-      this.audioFiles = [sampleBatchFile, ...this.audioFiles.filter((f) => f.relativePath !== file.name)];
+      this.audioFiles = [
+        sampleBatchFile,
+        ...this.audioFiles.filter((f) => f.relativePath !== file.name),
+      ];
       this.addLog(activeT.sampleFileAdded("WAV"), "success");
       this.showAlert(activeT.sampleFileAdded("WAV"), "success");
     } else {
-      const fileNames = ["report_draft_2026.txt", "vacation_photo (1).jpg", "[draft] logo_final.png", "temp_cache.tmp"];
-      const newFiles: BatchFile[] = fileNames.map(name => {
-        const file = new File(["dummy content"], name, { type: "text/plain" });
-        return {
-          name,
-          file,
-          relativePath: name,
-          status: "pending",
-          selected: true,
-          originalName: name,
-          newName: name
-        };
-      });
+      const files = generateSampleRenameFiles();
+      const newFiles: BatchFile[] = files.map((file) => ({
+        name: file.name,
+        file,
+        relativePath: file.name,
+        status: "pending",
+        selected: true,
+        originalName: file.name,
+        newName: file.name,
+      }));
 
-      this.renameFiles = [...newFiles, ...this.renameFiles.filter(f => !fileNames.includes(f.name))];
+      this.renameFiles = [
+        ...newFiles,
+        ...this.renameFiles.filter((f) => !newFiles.some((nf) => nf.name === f.name)),
+      ];
       this.addLog(activeT.sampleFileAdded("TXT/IMG"), "success");
       this.showAlert(activeT.sampleFileAdded("TXT/IMG"), "success");
     }
   }
 
   private saveRenameHistory() {
-    const currentNewNames = this.renameFiles.map(f => f.newName || f.name);
+    const currentNewNames = this.renameFiles.map((f) => f.newName || f.name);
     this.renameHistoryStack = [...this.renameHistoryStack, currentNewNames];
     if (this.renameHistoryStack.length > 10) {
       this.renameHistoryStack.shift();
@@ -475,17 +465,27 @@ export class BatcherApp extends LitElement {
       }
       return file;
     });
-    this.addLog(this.currentLang === "ko" ? "마지막 변경 사항을 실행 취소했습니다." : "Undid the last rename rule.", "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? "마지막 변경 사항을 실행 취소했습니다."
+        : "Undid the last rename rule.",
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleResetNames() {
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => ({
+    this.renameFiles = this.renameFiles.map((file) => ({
       ...file,
-      newName: file.originalName || file.name
+      newName: file.originalName || file.name,
     }));
-    this.addLog(this.currentLang === "ko" ? "모든 파일명을 원래 이름으로 복원했습니다." : "Restored all filenames to original.", "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? "모든 파일명을 원래 이름으로 복원했습니다."
+        : "Restored all filenames to original.",
+      "info"
+    );
     this.requestUpdate();
   }
 
@@ -493,17 +493,16 @@ export class BatcherApp extends LitElement {
     const { find, replace } = e.detail;
     if (!find) return;
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-      
-      const newBase = base.split(find).join(replace);
-      return { ...file, newName: newBase + ext };
+      return { ...file, newName: applyReplace(file.newName || file.name, find, replace) };
     });
-    this.addLog(this.currentLang === "ko" ? `문자열 치환 적용: "${find}" → "${replace}"` : `Applied text replace: "${find}" → "${replace}"`, "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? `문자열 치환 적용: "${find}" → "${replace}"`
+        : `Applied text replace: "${find}" → "${replace}"`,
+      "info"
+    );
     this.requestUpdate();
   }
 
@@ -511,12 +510,14 @@ export class BatcherApp extends LitElement {
     const { text } = e.detail;
     if (!text) return;
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      return { ...file, newName: text + currentName };
+      return { ...file, newName: applyPrefix(file.newName || file.name, text) };
     });
-    this.addLog(this.currentLang === "ko" ? `앞이름 추가 적용: "${text}"` : `Applied prefix: "${text}"`, "info");
+    this.addLog(
+      this.currentLang === "ko" ? `앞이름 추가 적용: "${text}"` : `Applied prefix: "${text}"`,
+      "info"
+    );
     this.requestUpdate();
   }
 
@@ -524,137 +525,116 @@ export class BatcherApp extends LitElement {
     const { text } = e.detail;
     if (!text) return;
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-      return { ...file, newName: base + text + ext };
+      return { ...file, newName: applySuffix(file.newName || file.name, text) };
     });
-    this.addLog(this.currentLang === "ko" ? `뒷이름 추가 적용: "${text}"` : `Applied suffix: "${text}"`, "info");
+    this.addLog(
+      this.currentLang === "ko" ? `뒷이름 추가 적용: "${text}"` : `Applied suffix: "${text}"`,
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleApplyRemove(e: CustomEvent<{ start: number; len: number }>) {
     const { start, len } = e.detail;
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-
-      const startIdx = start - 1;
-      if (startIdx < 0 || startIdx >= base.length) return file;
-      const newBase = base.substring(0, startIdx) + base.substring(startIdx + len);
-      return { ...file, newName: newBase + ext };
+      return { ...file, newName: applyRemove(file.newName || file.name, start, len) };
     });
-    this.addLog(this.currentLang === "ko" ? `위치 기준 지우기 적용 (시작: ${start}, 길이: ${len})` : `Applied remove at index (start: ${start}, len: ${len})`, "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? `위치 기준 지우기 적용 (시작: ${start}, 길이: ${len})`
+        : `Applied remove at index (start: ${start}, len: ${len})`,
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleKeepNumbers() {
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-
-      const newBase = base.replace(/[^0-9]/g, "");
-      return { ...file, newName: newBase + ext };
+      return { ...file, newName: applyKeepNumbers(file.newName || file.name) };
     });
-    this.addLog(this.currentLang === "ko" ? "숫자만 남기기 적용" : "Applied keep only numbers", "info");
+    this.addLog(
+      this.currentLang === "ko" ? "숫자만 남기기 적용" : "Applied keep only numbers",
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleRemoveBrackets() {
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-
-      const newBase = base
-        .replace(/\[[^\]]*\]/g, "")
-        .replace(/\([^)]*\)/g, "")
-        .replace(/\{[^}]*\}/g, "")
-        .trim();
-      return { ...file, newName: newBase + ext };
+      return { ...file, newName: applyRemoveBrackets(file.newName || file.name) };
     });
-    this.addLog(this.currentLang === "ko" ? "괄호 안 내용 지우기 적용" : "Applied remove text inside brackets", "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? "괄호 안 내용 지우기 적용"
+        : "Applied remove text inside brackets",
+      "info"
+    );
     this.requestUpdate();
   }
 
-  private handleApplyNumbering(e: CustomEvent<{ start: number; digits: number; position: "prefix" | "suffix" }>) {
+  private handleApplyNumbering(
+    e: CustomEvent<{ start: number; digits: number; position: "prefix" | "suffix" }>
+  ) {
     const { start, digits, position } = e.detail;
     this.saveRenameHistory();
     let currentNumber = start;
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-
-      const formattedNum = String(currentNumber).padStart(digits, "0");
+      const newName = applyNumbering(file.newName || file.name, currentNumber, digits, position);
       currentNumber++;
-
-      let newName = currentName;
-      if (position === "prefix") {
-        newName = formattedNum + base + ext;
-      } else {
-        newName = base + formattedNum + ext;
-      }
       return { ...file, newName };
     });
-    this.addLog(this.currentLang === "ko" ? `일련번호 추가 적용 (시작: ${start}, 자릿수: ${digits})` : `Applied numbering (start: ${start}, digits: ${digits})`, "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? `일련번호 추가 적용 (시작: ${start}, 자릿수: ${digits})`
+        : `Applied numbering (start: ${start}, digits: ${digits})`,
+      "info"
+    );
     this.requestUpdate();
   }
 
-  private handleApplyExtension(e: CustomEvent<{ mode: "keep" | "remove" | "change"; newExt: string }>) {
+  private handleApplyExtension(
+    e: CustomEvent<{ mode: "keep" | "remove" | "change"; newExt: string }>
+  ) {
     const { mode, newExt } = e.detail;
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const base = lastDot !== -1 ? currentName.substring(0, lastDot) : currentName;
-
-      let newName = currentName;
-      if (mode === "remove") {
-        newName = base;
-      } else if (mode === "change") {
-        const formattedExt = newExt.startsWith(".") ? newExt : `.${newExt}`;
-        newName = base + formattedExt;
-      }
-      return { ...file, newName };
+      return { ...file, newName: applyExtension(file.newName || file.name, mode, newExt) };
     });
-    this.addLog(this.currentLang === "ko" ? `확장자 변경 적용 (모드: ${mode}${newExt ? `, 새 확장자: ${newExt}` : ""})` : `Applied extension operation (mode: ${mode}${newExt ? `, ext: ${newExt}` : ""})`, "info");
+    this.addLog(
+      this.currentLang === "ko"
+        ? `확장자 변경 적용 (모드: ${mode}${newExt ? `, 새 확장자: ${newExt}` : ""})`
+        : `Applied extension operation (mode: ${mode}${newExt ? `, ext: ${newExt}` : ""})`,
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleApplyClearFilename() {
     this.saveRenameHistory();
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (!file.selected) return file;
-      const currentName = file.newName || file.name;
-      const lastDot = currentName.lastIndexOf(".");
-      const ext = lastDot !== -1 ? currentName.substring(lastDot) : "";
-      return { ...file, newName: ext };
+      return { ...file, newName: applyClearFilename(file.newName || file.name) };
     });
-    this.addLog(this.currentLang === "ko" ? "파일명 전체 삭제 적용" : "Applied clear entire filename", "info");
+    this.addLog(
+      this.currentLang === "ko" ? "파일명 전체 삭제 적용" : "Applied clear entire filename",
+      "info"
+    );
     this.requestUpdate();
   }
 
   private handleChangeFileNewName(e: CustomEvent<{ relativePath: string; newName: string }>) {
     const { relativePath, newName } = e.detail;
-    this.renameFiles = this.renameFiles.map(file => {
+    this.renameFiles = this.renameFiles.map((file) => {
       if (file.relativePath === relativePath) {
         return { ...file, newName };
       }
@@ -716,11 +696,8 @@ export class BatcherApp extends LitElement {
       this.isConverting = false;
 
       if (result.successCount > 0) {
-        this.showAlert(
-          activeT.alertRenameSuccessText(result.isLocalDirMode),
-          "success"
-        );
-        
+        this.showAlert(activeT.alertRenameSuccessText(result.isLocalDirMode), "success");
+
         this.renameFiles = this.renameFiles.map((file) => {
           if (file.selected && file.status === "success") {
             const updatedName = file.newName || file.name;
@@ -732,7 +709,7 @@ export class BatcherApp extends LitElement {
               name: updatedName,
               originalName: updatedName,
               relativePath: updatedRelativePath,
-              status: "pending"
+              status: "pending",
             };
           }
           return file;
@@ -946,71 +923,33 @@ export class BatcherApp extends LitElement {
 
   private handleToggleFileSelected(e: CustomEvent<BatchFile>) {
     const targetFile = e.detail;
-    if (this.activeTab === "svg") {
-      this.svgFiles = this.svgFiles.map((file) =>
-        file.relativePath === targetFile.relativePath
-          ? { ...file, selected: !file.selected }
-          : file
-      );
-    } else if (this.activeTab === "audio") {
-      this.audioFiles = this.audioFiles.map((file) =>
-        file.relativePath === targetFile.relativePath
-          ? { ...file, selected: !file.selected }
-          : file
-      );
-    } else {
-      this.renameFiles = this.renameFiles.map((file) =>
-        file.relativePath === targetFile.relativePath
-          ? { ...file, selected: !file.selected }
-          : file
-      );
-    }
+    this.activeFiles = this.activeFiles.map((file) =>
+      file.relativePath === targetFile.relativePath ? { ...file, selected: !file.selected } : file
+    );
   }
 
   private handleToggleAllFiles(e: CustomEvent<boolean>) {
     const checked = e.detail;
-    if (this.activeTab === "svg") {
-      this.svgFiles = this.svgFiles.map((file) => ({
-        ...file,
-        selected: checked,
-      }));
-    } else if (this.activeTab === "audio") {
-      this.audioFiles = this.audioFiles.map((file) => ({
-        ...file,
-        selected: checked,
-      }));
-    } else {
-      this.renameFiles = this.renameFiles.map((file) => ({
-        ...file,
-        selected: checked,
-      }));
-    }
+    this.activeFiles = this.activeFiles.map((file) => ({
+      ...file,
+      selected: checked,
+    }));
   }
 
   private handleDeleteFile(e: CustomEvent<BatchFile>) {
     const fileToDelete = e.detail;
-    if (this.activeTab === "svg") {
-      this.svgFiles = this.svgFiles.filter((file) => file.relativePath !== fileToDelete.relativePath);
-    } else if (this.activeTab === "audio") {
-      this.audioFiles = this.audioFiles.filter((file) => file.relativePath !== fileToDelete.relativePath);
-    } else {
-      this.renameFiles = this.renameFiles.filter((file) => file.relativePath !== fileToDelete.relativePath);
-    }
+    this.activeFiles = this.activeFiles.filter(
+      (file) => file.relativePath !== fileToDelete.relativePath
+    );
     this.addLog(t[this.currentLang].queueRemoved(fileToDelete.name), "info");
   }
 
   private handleDeleteSelectedFromQueue(e: CustomEvent<BatchFile[]>) {
     const filesToDelete = e.detail;
-    const pathsToDelete = new Set(filesToDelete.map(f => f.relativePath));
-    
-    if (this.activeTab === "svg") {
-      this.svgFiles = this.svgFiles.filter((file) => !pathsToDelete.has(file.relativePath));
-    } else if (this.activeTab === "audio") {
-      this.audioFiles = this.audioFiles.filter((file) => !pathsToDelete.has(file.relativePath));
-    } else {
-      this.renameFiles = this.renameFiles.filter((file) => !pathsToDelete.has(file.relativePath));
-    }
-    
+    const pathsToDelete = new Set(filesToDelete.map((f) => f.relativePath));
+
+    this.activeFiles = this.activeFiles.filter((file) => !pathsToDelete.has(file.relativePath));
+
     this.addLog(
       this.currentLang === "ko"
         ? `선택한 ${filesToDelete.length}개의 파일을 대기열에서 삭제했습니다.`
@@ -1054,7 +993,7 @@ export class BatcherApp extends LitElement {
     const isAudio = this.activeTab === "audio";
     const isRename = this.activeTab === "rename";
 
-    const currentFiles = isSvg ? this.svgFiles : isAudio ? this.audioFiles : this.renameFiles;
+    const currentFiles = this.activeFiles;
     const selectedFilesCount = currentFiles.filter((f) => f.selected).length;
 
     // SVG suffix template
@@ -1079,7 +1018,9 @@ export class BatcherApp extends LitElement {
         ></app-header>
 
         <!-- Tabs Navigation -->
-        <div class="flex items-center gap-2 p-1.5 bg-slate-900/40 border border-white/5 rounded-2xl w-full max-w-lg mx-auto mb-8 shadow-inner backdrop-blur-md">
+        <div
+          class="flex items-center gap-2 p-1.5 bg-slate-900/40 border border-white/5 rounded-2xl w-full max-w-lg mx-auto mb-8 shadow-inner backdrop-blur-md"
+        >
           <button
             @click="${() => this.handleTabChange("svg")}"
             ?disabled="${this.isConverting}"
@@ -1115,16 +1056,22 @@ export class BatcherApp extends LitElement {
         <!-- Browser Compatibility Alert Banner -->
         ${!this.apiSupported
           ? html`
-              <div class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-300 text-sm flex items-start gap-3">
+              <div
+                class="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-300 text-sm flex items-start gap-3"
+              >
                 <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 shrink-0 font-sans"></i>
                 <div class="font-sans">
                   <span class="font-bold">${activeT.compatBannerTitle}</span>
-                  ${isRename 
-                    ? activeT.compatRenameBannerText 
+                  ${isRename
+                    ? activeT.compatRenameBannerText
                     : activeT.compatBannerText(
                         isSvg
-                          ? (this.svgOutputDirHandle ? this.svgOutputDirHandle.name : "converted_images")
-                          : (this.audioOutputDirHandle ? this.audioOutputDirHandle.name : "converted_audio")
+                          ? this.svgOutputDirHandle
+                            ? this.svgOutputDirHandle.name
+                            : "converted_images"
+                          : this.audioOutputDirHandle
+                            ? this.audioOutputDirHandle.name
+                            : "converted_audio"
                       )}
                 </div>
               </div>
@@ -1154,7 +1101,8 @@ export class BatcherApp extends LitElement {
                     @reset-output-folder="${() => (this.svgOutputDirHandle = null)}"
                     @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
                     @load-sample="${this.loadSampleFile}"
-                    @change-format="${(e: CustomEvent<"png" | "jpg">) => (this.exportFormat = e.detail)}"
+                    @change-format="${(e: CustomEvent<"png" | "jpg">) =>
+                      (this.exportFormat = e.detail)}"
                     @change-scale="${(e: CustomEvent<number>) => (this.selectedScale = e.detail)}"
                     @change-suffix="${(e: CustomEvent<{ scale: number; suffix: string }>) =>
                       this.handleChangeSuffix(e.detail.scale, e.detail.suffix)}"
@@ -1162,61 +1110,61 @@ export class BatcherApp extends LitElement {
                   ></settings-panel>
                 `
               : isAudio
-              ? html`
-                  <audio-settings-panel
-                    .lang="${this.currentLang}"
-                    .apiSupported="${this.apiSupported}"
-                    .dirHandle="${this.audioDirHandle}"
-                    .filesCount="${this.audioFiles.length}"
-                    .bitrate="${this.audioBitrate}"
-                    .outputDirHandle="${this.audioOutputDirHandle}"
-                    .deleteOriginal="${this.audioDeleteOriginal}"
-                    .isConverting="${this.isConverting}"
-                    .conversionProgress="${this.conversionProgress}"
-                    .inputExts="${this.audioInputExts}"
-                    @select-folder="${this.selectFolder}"
-                    @select-output-folder="${this.selectOutputFolder}"
-                    @reset-output-folder="${() => (this.audioOutputDirHandle = null)}"
-                    @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
-                    @load-sample="${this.loadSampleFile}"
-                    @change-bitrate="${(e: CustomEvent<number>) => (this.audioBitrate = e.detail)}"
-                    @toggle-delete="${() => (this.audioDeleteOriginal = !this.audioDeleteOriginal)}"
-                    @change-input-exts="${this.handleChangeInputExts}"
-                  ></audio-settings-panel>
-                `
-              : html`
-                  <renamer-settings-panel
-                    .lang="${this.currentLang}"
-                    .apiSupported="${this.apiSupported}"
-                    .dirHandle="${this.renameDirHandle}"
-                    .filesCount="${this.renameFiles.length}"
-                    .extFilter="${this.renameExtFilter}"
-                    .isConverting="${this.isConverting}"
-                    .conversionProgress="${this.conversionProgress}"
-                    @select-folder="${this.selectFolder}"
-                    @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
-                    @load-sample="${this.loadSampleFile}"
-                    @change-ext-filter="${(e: CustomEvent<string>) => {
-                      this.renameExtFilter = e.detail;
-                      if (this.renameDirHandle) {
-                        this.reScanRenameDirectory();
-                      }
-                    }}"
-                    @apply-replace="${this.handleApplyReplace}"
-                    @apply-prefix="${this.handleApplyPrefix}"
-                    @apply-suffix="${this.handleApplySuffix}"
-                    @apply-remove="${this.handleApplyRemove}"
-                    @apply-keep-numbers="${this.handleKeepNumbers}"
-                    @apply-remove-brackets="${this.handleRemoveBrackets}"
-                    @apply-numbering="${this.handleApplyNumbering}"
-                    @apply-extension="${this.handleApplyExtension}"
-                    @apply-clear-filename="${this.handleApplyClearFilename}"
-                    @undo-rename="${this.handleUndoRename}"
-                    @reset-names="${this.handleResetNames}"
-                    @delete-selected="${this.handleDeleteSelectedFiles}"
-                    @clear-all-files="${this.resetAll}"
-                  ></renamer-settings-panel>
-                `}
+                ? html`
+                    <audio-settings-panel
+                      .lang="${this.currentLang}"
+                      .apiSupported="${this.apiSupported}"
+                      .dirHandle="${this.audioDirHandle}"
+                      .filesCount="${this.audioFiles.length}"
+                      .bitrate="${this.audioBitrate}"
+                      .outputDirHandle="${this.audioOutputDirHandle}"
+                      .deleteOriginal="${this.audioDeleteOriginal}"
+                      .isConverting="${this.isConverting}"
+                      .conversionProgress="${this.conversionProgress}"
+                      .inputExts="${this.audioInputExts}"
+                      @select-folder="${this.selectFolder}"
+                      @select-output-folder="${this.selectOutputFolder}"
+                      @reset-output-folder="${() => (this.audioOutputDirHandle = null)}"
+                      @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
+                      @load-sample="${this.loadSampleFile}"
+                      @change-bitrate="${(e: CustomEvent<number>) => (this.audioBitrate = e.detail)}"
+                      @toggle-delete="${() => (this.audioDeleteOriginal = !this.audioDeleteOriginal)}"
+                      @change-input-exts="${this.handleChangeInputExts}"
+                    ></audio-settings-panel>
+                  `
+                : html`
+                    <renamer-settings-panel
+                      .lang="${this.currentLang}"
+                      .apiSupported="${this.apiSupported}"
+                      .dirHandle="${this.renameDirHandle}"
+                      .filesCount="${this.renameFiles.length}"
+                      .extFilter="${this.renameExtFilter}"
+                      .isConverting="${this.isConverting}"
+                      .conversionProgress="${this.conversionProgress}"
+                      @select-folder="${this.selectFolder}"
+                      @upload-files="${(e: CustomEvent) => this.handleFallbackUpload(e.detail)}"
+                      @load-sample="${this.loadSampleFile}"
+                      @change-ext-filter="${(e: CustomEvent<string>) => {
+                        this.renameExtFilter = e.detail;
+                        if (this.renameDirHandle) {
+                          this.reScanRenameDirectory();
+                        }
+                      }}"
+                      @apply-replace="${this.handleApplyReplace}"
+                      @apply-prefix="${this.handleApplyPrefix}"
+                      @apply-suffix="${this.handleApplySuffix}"
+                      @apply-remove="${this.handleApplyRemove}"
+                      @apply-keep-numbers="${this.handleKeepNumbers}"
+                      @apply-remove-brackets="${this.handleRemoveBrackets}"
+                      @apply-numbering="${this.handleApplyNumbering}"
+                      @apply-extension="${this.handleApplyExtension}"
+                      @apply-clear-filename="${this.handleApplyClearFilename}"
+                      @undo-rename="${this.handleUndoRename}"
+                      @reset-names="${this.handleResetNames}"
+                      @delete-selected="${this.handleDeleteSelectedFiles}"
+                      @clear-all-files="${this.resetAll}"
+                    ></renamer-settings-panel>
+                  `}
           </div>
 
           <!-- Right Real-Time Display & Logger Panel (cols-7) -->
@@ -1247,12 +1195,18 @@ export class BatcherApp extends LitElement {
       </div>
 
       <!-- Floating Bottom Glass Action Bar -->
-      <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl bg-[rgba(255,255,255,0.75)] dark:bg-[rgba(15,23,42,0.65)] backdrop-blur-[13px] backdrop-saturate-183 border border-[rgba(255,255,255,0.35)] dark:border-white/10 py-4.5 px-6 z-40 rounded-3xl shadow-[0px_8px_32px_rgba(31,38,135,0.25)] dark:shadow-[0px_15px_50px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-[rgba(255,255,255,0.5)] dark:hover:border-white/15">
+      <div
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl bg-[rgba(255,255,255,0.75)] dark:bg-[rgba(15,23,42,0.65)] backdrop-blur-[13px] backdrop-saturate-183 border border-[rgba(255,255,255,0.35)] dark:border-white/10 py-4.5 px-6 z-40 rounded-3xl shadow-[0px_8px_32px_rgba(31,38,135,0.25)] dark:shadow-[0px_15px_50px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-[rgba(255,255,255,0.5)] dark:hover:border-white/15"
+      >
         <!-- Progress bar along the top inner edge -->
         ${this.isConverting || this.conversionProgress > 0
           ? html`
-              <div class="absolute top-0 left-6 right-6 h-1 bg-slate-950/20 dark:bg-white/10 rounded-full overflow-hidden">
-                <div class="progress-bar-inner h-full bg-linear-to-r from-indigo-500 via-purple-500 to-emerald-500 transition-all duration-300 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+              <div
+                class="absolute top-0 left-6 right-6 h-1 bg-slate-950/20 dark:bg-white/10 rounded-full overflow-hidden"
+              >
+                <div
+                  class="progress-bar-inner h-full bg-linear-to-r from-indigo-500 via-purple-500 to-emerald-500 transition-all duration-300 shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+                ></div>
               </div>
             `
           : ""}
@@ -1261,38 +1215,64 @@ export class BatcherApp extends LitElement {
           <!-- Left side: dynamic info vs progress info -->
           ${this.isConverting || this.conversionProgress > 0
             ? html`
-                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 font-sans font-bold">
+                <div
+                  class="flex flex-wrap items-center gap-3 text-xs text-slate-300 font-sans font-bold"
+                >
                   <div class="flex items-center gap-2">
                     ${this.isConverting
                       ? html`
                           <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span
+                              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"
+                            ></span>
                             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
                           </span>
-                          <span class="text-slate-100 font-bold tracking-wide">${isRename ? (this.currentLang === "ko" ? "변경 진행 중..." : "Renaming...") : activeT.converting}</span>
+                          <span class="text-slate-100 font-bold tracking-wide"
+                            >${isRename
+                              ? this.currentLang === "ko"
+                                ? "변경 진행 중..."
+                                : "Renaming..."
+                              : activeT.converting}</span
+                          >
                         `
                       : html`
-                          <span class="inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                          <span class="text-emerald-600 font-bold tracking-wide">${isRename ? (this.currentLang === "ko" ? "변경 완료!" : "Rename complete!") : activeT.completed}</span>
+                          <span
+                            class="inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                          ></span>
+                          <span class="text-emerald-600 font-bold tracking-wide"
+                            >${isRename
+                              ? this.currentLang === "ko"
+                                ? "변경 완료!"
+                                : "Rename complete!"
+                              : activeT.completed}</span
+                          >
                         `}
                   </div>
                   <span class="text-black/10 dark:text-white/10">|</span>
                   <span>
                     ${activeT.progress}
-                    <strong class="text-indigo-600 dark:text-indigo-400 font-mono text-xs">${this.conversionProgress}%</strong>
+                    <strong class="text-indigo-600 dark:text-indigo-400 font-mono text-xs"
+                      >${this.conversionProgress}%</strong
+                    >
                   </span>
                   <span class="text-black/10 dark:text-white/10 hidden sm:inline">|</span>
                   <span class="hidden sm:inline">
                     ${activeT.doneCount}
-                    <strong class="text-emerald-600 dark:text-emerald-400 font-mono">${this.currentConversionIndex}</strong> /
-                    ${currentFiles.filter((f) => f.selected).length}
+                    <strong class="text-emerald-600 dark:text-emerald-400 font-mono"
+                      >${this.currentConversionIndex}</strong
+                    >
+                    / ${currentFiles.filter((f) => f.selected).length}
                   </span>
                 </div>
               `
             : html`
                 <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-bold font-sans">
                   <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full ${selectedFilesCount > 0 ? "bg-indigo-400 animate-ping" : "bg-slate-300 dark:bg-slate-700"}"></span>
+                    <span
+                      class="w-2 h-2 rounded-full ${selectedFilesCount > 0
+                        ? "bg-indigo-400 animate-ping"
+                        : "bg-slate-300 dark:bg-slate-700"}"
+                    ></span>
                     <span>
                       ${activeT.waitingFiles}
                       <strong class="text-slate-100 font-extrabold">
@@ -1309,30 +1289,40 @@ export class BatcherApp extends LitElement {
                         <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
                         <span>
                           ${activeT.exportFormat}
-                          <strong class="text-indigo-600 dark:text-indigo-400 uppercase font-extrabold">${this.exportFormat}</strong>
+                          <strong class="text-indigo-600 dark:text-indigo-400 uppercase font-extrabold"
+                            >${this.exportFormat}</strong
+                          >
                         </span>
                         <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
                         <span>
                           ${activeT.applyScale}
-                          <strong class="text-slate-100 font-mono font-extrabold">${this.selectedScale}x</strong>
+                          <strong class="text-slate-100 font-mono font-extrabold"
+                            >${this.selectedScale}x</strong
+                          >
                         </span>
                         ${suffixTemplate}
                       `
                     : isAudio
-                    ? html`
-                        <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
-                        <span>
-                          ${activeT.applyBitrate}
-                          <strong class="text-purple-600 dark:text-purple-400 uppercase font-extrabold">${this.audioBitrate} kbps</strong>
-                        </span>
-                      `
-                    : html`
-                        <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
-                        <span>
-                          ${this.currentLang === "ko" ? "모드" : "Mode"}:
-                          <strong class="text-pink-600 dark:text-pink-400 uppercase font-extrabold">${this.currentLang === "ko" ? "파일 일괄 변경" : "Batch Rename"}</strong>
-                        </span>
-                      `}
+                      ? html`
+                          <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
+                          <span>
+                            ${activeT.applyBitrate}
+                            <strong class="text-purple-600 dark:text-purple-400 uppercase font-extrabold"
+                              >${this.audioBitrate} kbps</strong
+                            >
+                          </span>
+                        `
+                      : html`
+                          <span class="text-black/10 dark:text-white/10 hidden md:inline">|</span>
+                          <span>
+                            ${this.currentLang === "ko" ? "모드" : "Mode"}:
+                            <strong class="text-pink-600 dark:text-pink-400 uppercase font-extrabold"
+                              >${this.currentLang === "ko"
+                                ? "파일 일괄 변경"
+                                : "Batch Rename"}</strong
+                            >
+                          </span>
+                        `}
                 </div>
               `}
 
@@ -1356,8 +1346,8 @@ export class BatcherApp extends LitElement {
               class="flex-1 md:flex-initial w-full md:w-auto px-8 py-3 bg-linear-to-r ${isSvg
                 ? "from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500"
                 : isAudio
-                ? "from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:via-fuchsia-500 hover:to-pink-500"
-                : "from-pink-600 via-rose-600 to-red-600 hover:from-pink-500 hover:via-rose-500 hover:to-red-500"} disabled:bg-none disabled:bg-black/5 dark:disabled:bg-white/5 disabled:text-black/30 dark:disabled:text-white/30 disabled:border-black/5 dark:disabled:border-white/5 disabled:cursor-not-allowed disabled:shadow-none hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-[0.97] text-white font-bold text-sm tracking-wide rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shrink-0"
+                  ? "from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:via-fuchsia-500 hover:to-pink-500"
+                  : "from-pink-600 via-rose-600 to-red-600 hover:from-pink-500 hover:via-rose-500 hover:to-red-500"} disabled:bg-none disabled:bg-black/5 dark:disabled:bg-white/5 disabled:text-black/30 dark:disabled:text-white/30 disabled:border-black/5 dark:disabled:border-white/5 disabled:cursor-not-allowed disabled:shadow-none hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-[0.97] text-white font-bold text-sm tracking-wide rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shrink-0"
             >
               ${this.isConverting
                 ? html`
